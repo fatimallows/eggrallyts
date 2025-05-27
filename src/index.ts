@@ -68,7 +68,7 @@ fetch("settings.json")
 
     const root = document.getElementById("app")!
     const { config } = initModel
-    const update = makeUpdate(initModel)
+    const update = makeUpdate(initModel, settings)
 
     startModelCmd(
       root,

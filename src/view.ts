@@ -24,6 +24,14 @@ export const view = (model: Model) =>
       color: "white", lineWidth: 2
     }),
 
+    // Canvas.OutlinedRectangle.make({
+    //   x: 0, 
+    //   y: 0,
+    //   width: config.worldWidth,
+    //   height: config.worldHeight,
+    //   color: "white", lineWidth: 2
+    // }),
+
     Canvas.SolidRectangle.make({
       x: egg.x, 
       y: egg.y,

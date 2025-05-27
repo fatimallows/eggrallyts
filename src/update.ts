@@ -1,7 +1,7 @@
 import { Match, pipe } from "effect"
 import { Cmd } from "cs12242-mvu/src/index"
 import { CanvasMsg } from "cs12242-mvu/src/canvas"
-import { Model, WorldUtils, EggUtils, Eggnemies, Egg, Rectangle } from "./model"
+import { Model, WorldUtils, EggUtils, Eggnemies, Egg, Rectangle, Settings } from "./model"
 
 export type Msg = CanvasMsg
 
@@ -68,9 +68,12 @@ export const updateEggnemies = (model: Model): Model =>
   })
 
 export const updateGameOver = (model: Model) => {
-  const isGameOver = model.egg.hp <= 0 || model.eggnemies.length === 0
-  return isGameOver ? Model.make({ ...model, isGameOver: true }) : model
+  const hasInitSpawned = model.eggnemies.length > 0 ||  model.ticks > 0
+  const isGameOver = model.egg.hp <= 0 || (hasInitSpawned && model.eggnemies.length === 0)
 
+  return isGameOver 
+  ? Model.make({ ...model, isGameOver: true }) 
+  : model
 }
 
 export const attack = (model: Model): Model => {
@@ -80,7 +83,38 @@ export const attack = (model: Model): Model => {
   return Model.make({ ...model, eggnemies })
 }
 
-export const makeUpdate = (initModel: Model) => (msg: Msg, model: Model): Model | { model: Model; cmd: Cmd<Msg> } =>
+export const spawnEggnemies = (model: Model, settings: Settings) => {
+  const shouldSpawn = model.ticks % 300 === 0
+  if (!shouldSpawn) return model
+  console.log("Spawning new eggnemy:", {
+    hp: settings.eggnemyInitHP,
+    maxHp: settings.eggnemyInitHP,
+  });
+  const onScreen = Math.random() < 0.5
+  const x = onScreen
+  ? Math.random() * settings.screenWidth
+  : Math.random() * settings.worldWidth - settings.worldWidth / 2
+  const y = onScreen
+  ? Math.random() * settings.screenHeight
+  : Math.random() * settings.worldHeight - settings.worldHeight / 2
+  const spawn = Eggnemies.make({
+    x,
+    y,
+    width: settings.eggnemyWidth,
+    height: settings.eggnemyHeight,
+    vx: 1,
+    vy: 1,
+    id: model.eggnemies.length + 1,
+    hp: settings.eggnemyInitHP,
+    maxHp: settings.eggnemyInitHP,
+  })
+  return Model.make({
+    ...model,
+    eggnemies: [...model.eggnemies, spawn],
+  })
+}
+
+export const makeUpdate = (initModel: Model, settings: Settings) => (msg: Msg, model: Model): Model | { model: Model; cmd: Cmd<Msg> } =>
   Match.value(msg).pipe(
     Match.tag("Canvas.MsgKeyDown", ({ key }) => {
       let x = model.world.x
@@ -121,7 +155,13 @@ export const makeUpdate = (initModel: Model) => (msg: Msg, model: Model): Model 
     Match.tag("Canvas.MsgTick", () =>
       model.isGameOver
         ? model
-        : pipe(model, updateEgg, updateEggnemies, updateCollision, updateGameOver, updateTicks)
+        : pipe(model, 
+          updateEgg, 
+          updateEggnemies, 
+          updateCollision, 
+          (model) => spawnEggnemies(model, settings),
+          updateGameOver, 
+          updateTicks)
     ),
     Match.orElse(() => model)
   )
