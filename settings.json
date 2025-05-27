@@ -1,0 +1,13 @@
+{
+  "fps": 30,
+  "screenWidth": 1920,
+  "screenHeight": 1080,
+  "worldWidth": 600,
+  "worldHeight": 600,
+  "eggInitHP": 10,
+  "eggWidth": 20,
+  "eggHeight": 40,
+  "eggnemiesCount": 10,
+  "eggnemyWidth": 20,
+  "eggnemyHeight": 20
+}
