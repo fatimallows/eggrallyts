@@ -48,12 +48,6 @@ export const view = (model: Model) =>
       fontSize: 12
     }),
 
-    Canvas.CanvasImage.make({
-      x: egg.x - 22,
-      y: egg.y - 22,
-      src: "resources/poring.gif"
-    }),
-
     ...model.eggnemies.map((eggnemies) =>
       Canvas.SolidRectangle.make({
         x: eggnemies.x, 
