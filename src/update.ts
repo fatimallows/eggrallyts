@@ -88,10 +88,27 @@ export const makeUpdate = (initModel: Model) => (msg: Msg, model: Model): Model 
       const velocity = -model.config.velocity
 
       if (!model.isGameOver) {
-        if (key === "w") y = Math.min(y - velocity,EggUtils.top(model.egg))
-        else if (key === "s") y = Math.max(y + velocity, (model.egg.y + model.egg.height) - model.world.height)
-        else if (key === "a") x = Math.min(x-velocity, EggUtils.left(model.egg))
-        else if (key === "d") x = Math.max(x+velocity, (model.egg.x+model.egg.width)-model.world.width)
+        if (key === "w"){
+            y = Math.min(y - velocity,EggUtils.top(model.egg))
+            const eggnemies = model.eggnemies.map((e) => Eggnemies.make({...e, y: e.y - velocity}))
+            model = Model.make({ ...model, eggnemies })
+        }
+        else if (key === "s") {
+            y = Math.max(y + velocity, (model.egg.y + model.egg.height) - model.world.height)
+            const eggnemies = model.eggnemies.map((e) => Eggnemies.make({...e, y: e.y + velocity}))
+            model = Model.make({ ...model, eggnemies })
+        }
+        
+        else if (key === "a") {
+            x = Math.min(x-velocity, EggUtils.left(model.egg))
+            const eggnemies = model.eggnemies.map((e) => Eggnemies.make({...e, x: e.x - velocity}))
+            model = Model.make({ ...model, eggnemies })
+        }
+        else if (key === "d"){
+            x = Math.max(x+velocity, (model.egg.x+model.egg.width)-model.world.width)
+            const eggnemies = model.eggnemies.map((e) => Eggnemies.make({...e, x: e.x + velocity}))
+            model = Model.make({ ...model, eggnemies })
+        }
         else if (key === "l") return attack(model)
         else if (key === "r") return initModel
         else return model
