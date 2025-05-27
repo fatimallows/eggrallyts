@@ -76,6 +76,19 @@ export const updateGameOver = (model: Model) => {
   : model
 }
 
+export const updateTime = (model: Model): Model => {
+  const seconds = Math.floor(model.ticks / 30)
+  const minutes = Math.floor(seconds / 30)
+  
+  return Model.make({
+        ...model,
+        timer: {
+            seconds: seconds % 60,
+            minutes: minutes,
+        },
+        })
+}
+
 export const attack = (model: Model): Model => {
   if (model.isGameOver) return model
   const egg = model.egg
@@ -161,7 +174,8 @@ export const makeUpdate = (initModel: Model, settings: Settings) => (msg: Msg, m
           updateCollision, 
           (model) => spawnEggnemies(model, settings),
           updateGameOver, 
-          updateTicks)
+          updateTicks,
+          updateTime)
     ),
     Match.orElse(() => model)
   )
