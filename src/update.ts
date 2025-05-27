@@ -93,7 +93,7 @@ export const attack = (model: Model): Model => {
   if (model.isGameOver) return model
   const egg = model.egg
   const eggnemies = model.eggnemies.filter((e) => !isinCollision(egg, e))
-  return Model.make({ ...model, eggnemies })
+  return Model.make({ ...model, defeatedEggnemies: model.config.eggnemiesCount - eggnemies.length, eggnemies })
 }
 
 export const spawnEggnemies = (model: Model, settings: Settings) => {

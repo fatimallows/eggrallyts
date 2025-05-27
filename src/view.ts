@@ -75,5 +75,13 @@ export const view = (model: Model) =>
       color: "white",
       fontSize: 20
     }),
+
+    Canvas.Text.make({
+      x: world.x - 40,
+      y: world.y + 30,
+      text: `${String(model.defeatedEggnemies)}`,
+      color: "white",
+      fontSize: 20
+    }),
     viewGameOver(model),
   ])

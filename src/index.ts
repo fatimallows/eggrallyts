@@ -13,8 +13,8 @@ fetch("settings.json")
     const initModel = pipe(
       Model.make({
         world: World.make({
-          x: 0,
-          y: 0,
+          x: 80,
+          y: 80,
           width: settings.worldWidth,
           height: settings.worldHeight,
         }),
@@ -27,6 +27,7 @@ fetch("settings.json")
           canvasId: "canvas",
           velocity: 10,
           eggInvincibilityFrames: 30,
+          eggnemiesCount: settings.eggnemiesCount,
         }),
         egg: Egg.make({
           x: 0, 
@@ -39,7 +40,7 @@ fetch("settings.json")
           maxHp: settings.eggInitHP,
         }),
         eggnemies: pipe(
-          Array.range(1, settings.eggnemiesCount).map((id) =>
+          Array.range(1, settings.eggnemiesCount-1).map((id) =>
             Eggnemies.make({
               x: Math.random() * settings.worldWidth,
               y: Math.random() * settings.worldHeight,
