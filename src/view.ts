@@ -5,11 +5,11 @@ import { pipe } from "effect"
 export const viewGameOver = (model: Model) =>
   model.isGameOver ?
     Canvas.Text.make({
-      x: model.config.worldWidth / 2,
-      y: model.config.worldHeight / 2,
+      x: model.egg.x + model.egg.width / 2,
+      y: model.egg.x -10,
       text: model.eggnemies.length === 0 ? "YOU WIN" : "GAME OVER",
       color: "white",
-      fontSize: 20,
+      fontSize:15,
     })
     : Canvas.NullElement.make()
 
