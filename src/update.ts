@@ -127,9 +127,9 @@ export const spawnEggnemies = (model: Model, settings: Settings) => {
   })
 }
 
-export const spawnBoss = (model: Model, settings: Settings) => {
-  model.defeatedEggnemies >= settings.eggnemiesToSpawnBoss && model.boss === null
-    ? Model.make({ 
+export const spawnBoss = (model: Model, settings: Settings): Model => {
+  if (model.defeatedEggnemies >= settings.eggnemiesToSpawnBoss && model.boss === null) {
+    return Model.make({ 
       ...model, 
       boss: Boss.make({
         x: model.world.x + model.world.width / 2 - settings.bossWidth / 2,
@@ -143,11 +143,13 @@ export const spawnBoss = (model: Model, settings: Settings) => {
       }),
       isBossActive: true,
     })
-    : Model.make({ 
+  } else {
+    return Model.make({ 
       ...model, 
-      isBossActive: false 
+      isBossActive: false,
     })
   }
+}
 
 const bossSpeed = 3
 
