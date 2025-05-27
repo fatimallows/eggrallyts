@@ -8,21 +8,6 @@ export const World = S.Struct({
   height: S.Number,
 })
 
-export const WorldUtils = {
-  top: (world: World) => world.y,
-  bottom: (world: World) => world.y + world.height,
-  left:  (world: World) => world.x,
-  right:  (world: World) => world.x + world.width,
-  updateInModel: (model: Model, updates: Partial<World>) =>
-    Model.make({
-      ...model,
-      world: World.make({
-        ...model.world,
-        ...updates,
-      })
-    }),
-}
-
 export type Timer = typeof Timer.Type
 export const Timer = S.Struct({
     seconds: S.Number,
@@ -151,4 +136,19 @@ export const EggUtils = {
       eggnemies: updatedEggnemies,
     })
   }
+}
+
+export const WorldUtils = {
+  top: (world: World) => world.y,
+  bottom: (world: World) => world.y + world.height,
+  left:  (world: World) => world.x,
+  right:  (world: World) => world.x + world.width,
+  updateInModel: (model: Model, updates: Partial<World>) =>
+    Model.make({
+      ...model,
+      world: World.make({
+        ...model.world,
+        ...updates,
+      })
+    }),
 }
