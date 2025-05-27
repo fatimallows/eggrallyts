@@ -62,7 +62,7 @@ export const view = (model: Model) =>
       Canvas.Text.make({
           x: eggnemies.x + eggnemies.width / 2,
           y: eggnemies.y + eggnemies.height + 15,
-          color: "white",
+          color: "red",
           text: `${eggnemies.hp}/${eggnemies.maxHp}`,
           fontSize: 12
         })
