@@ -58,6 +58,10 @@ fetch("settings.json")
         ticks: 0,
         firstCollisionTick: -30,
         defeatedEggnemies: 0,
+        timer: {
+          seconds: 0,
+          minutes: 0,
+        }
       }),
       (model) =>
         EggUtils.updateInModel(model, {

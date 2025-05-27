@@ -23,6 +23,12 @@ export const WorldUtils = {
     }),
 }
 
+export type Timer = typeof Timer.Type
+export const Timer = S.Struct({
+    seconds: S.Number,
+    minutes: S.Number,
+})
+
 export const Rectangle = S.Struct({
   x: S.Number,
   y: S.Number,
@@ -78,6 +84,7 @@ export const Model = S.Struct({
   ticks: S.Number,
   firstCollisionTick: S.Int,
   defeatedEggnemies: S.Number,
+  timer: Timer,
 })
 export type Model = typeof Model.Type
 

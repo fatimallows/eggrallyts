@@ -75,9 +75,9 @@ export const view = (model: Model) =>
       ),
 
     Canvas.Text.make({
-      x: config.worldWidth / 2,
-      y: 50,
-      text: `${model.defeatedEggnemies}`,
+      x: world.x + config.worldWidth + 50,
+      y: world.y + 30,
+      text: `${String(model.timer.minutes)}:${String(model.timer.seconds).padStart(2, '0')}`,
       color: "white",
       fontSize: 20
     }),
