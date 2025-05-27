@@ -1,19 +1,16 @@
-import { pipe, Array } from "effect"
 import { startModelCmd } from "cs12242-mvu/src/index"
 import { canvasView } from "cs12242-mvu/src/canvas"
-import { Config, Egg, Eggnemies, Model, Settings } from "./model"
+import { pipe, Array } from "effect"
+import { Config, Egg, Eggnemies, Model, Settings, EggUtils } from "./model"
 import { view } from "./view"
-import { update, resetModel as _resetModel } from "./update"
-
-let initModel: Model
-_update.resetModel = () => initModel
+import { makeUpdate } from "./update"
 
 fetch("settings.json")
-  .then((res) => res.json())
+  .then((response) => response.json())
   .then((data: Settings) => {
     const settings = data
 
-    initModel = pipe(
+    const initModel = pipe(
       Model.make({
         config: Config.make({
           screenWidth: settings.screenWidth,
@@ -27,12 +24,10 @@ fetch("settings.json")
           eggInvincibilityFrames: 30,
         }),
         egg: Egg.make({
-          x: settings.worldWidth / 2,
-          y: settings.worldHeight / 2,
+          x: 0, y: 0,
           width: settings.eggWidth,
           height: settings.eggHeight,
-          vx: 0,
-          vy: 0,
+          vy: 0, vx: 0,
           hp: settings.eggInitHP,
         }),
         eggnemies: pipe(
@@ -52,18 +47,28 @@ fetch("settings.json")
         score: 0,
         ticks: 0,
         firstCollisionTick: -30,
-      })
+      }),
+      (model) =>
+        EggUtils.updateInModel(model, {
+          x: model.config.worldWidth / 2,
+          y: model.config.worldHeight / 2,
+        })
     )
-
-    _update.resetModel = () => initModel
 
     const root = document.getElementById("app")!
     const { config } = initModel
+    const update = makeUpdate(initModel)
 
     startModelCmd(
       root,
       initModel,
       update,
-      canvasView(config.screenWidth, config.screenHeight, config.fps, config.canvasId, view)
+      canvasView(
+        config.screenWidth,
+        config.screenHeight,
+        config.fps,
+        config.canvasId,
+        view
+      )
     )
   })

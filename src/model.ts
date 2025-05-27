@@ -1,6 +1,11 @@
-import { Schema as S, Array, pipe } from "effect"
+import { Array, Schema as S, pipe } from "effect"
 
-export const Rectangle = S.Struct({ x: S.Number, y: S.Number, height: S.Number, width: S.Number })
+export const Rectangle = S.Struct({
+  x: S.Number,
+  y: S.Number,
+  height: S.Number,
+  width: S.Number,
+})
 export type Rectangle = typeof Rectangle.Type
 
 export const Config = S.Struct({
@@ -64,24 +69,29 @@ export const Settings = S.Struct({
 })
 export type Settings = typeof Settings.Type
 
+export const EggnemiesUtils = {
+  top: (eggnemies: Eggnemies) => eggnemies.y,
+  bottom: (eggnemies: Eggnemies) => eggnemies.y + eggnemies.height,
+  left: (eggnemies: Eggnemies) => eggnemies.x,
+  right: (eggnemies: Eggnemies) => eggnemies.x + eggnemies.width,
+  updateInModel: (model: Model, updates: Partial<Eggnemies>[]) =>
+    Model.make({
+      ...model,
+      eggnemies: pipe(model.eggnemies, Array.map((eggnemy) => Eggnemies.make({...eggnemy, ...updates})))
+    }),
+}
+
 export const EggUtils = {
   top: (egg: Egg) => egg.y,
   bottom: (egg: Egg) => egg.y + egg.height,
   left: (egg: Egg) => egg.x,
   right: (egg: Egg) => egg.x + egg.width,
   updateInModel: (model: Model, updates: Partial<Egg>) =>
-    Model.make({ ...model, egg: Egg.make({ ...model.egg, ...updates }) }),
-}
-
-export const EggnemiesUtils = {
-  top: (e: Eggnemies) => e.y,
-  bottom: (e: Eggnemies) => e.y + e.height,
-  left: (e: Eggnemies) => e.x,
-  right: (e: Eggnemies) => e.x + e.width,
-  updateInModel: (model: Model, updates: Partial<Eggnemies>[]) =>
     Model.make({
       ...model,
-      eggnemies: pipe(model.eggnemies, Array.map((eggnemy) => Eggnemies.make({ ...eggnemy, ...updates }))),
+      egg: Egg.make({
+        ...model.egg,
+        ...updates,
+      }),
     }),
 }
-= CanvasMsg
