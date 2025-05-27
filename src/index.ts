@@ -20,15 +20,17 @@ fetch("settings.json")
           fps: settings.fps,
           canvasId: "canvas",
           velocity: 10,
-          maxHp: settings.eggInitHP,
           eggInvincibilityFrames: 30,
         }),
         egg: Egg.make({
-          x: 0, y: 0,
+          x: 0, 
+          y: 0,
           width: settings.eggWidth,
           height: settings.eggHeight,
-          vy: 0, vx: 0,
+          vy: 0, 
+          vx: 0,
           hp: settings.eggInitHP,
+          maxHp: settings.eggInitHP,
         }),
         eggnemies: pipe(
           Array.range(1, settings.eggnemiesCount).map((id) =>
@@ -39,7 +41,9 @@ fetch("settings.json")
               height: settings.eggnemyHeight,
               vx: Math.random() * 2 - 1,
               vy: Math.random() * 2 - 1,
-              id,
+              id, 
+              hp: settings.eggnemyInitHP,
+              maxHp: settings.eggnemyInitHP,
             })
           )
         ),
@@ -47,6 +51,7 @@ fetch("settings.json")
         score: 0,
         ticks: 0,
         firstCollisionTick: -30,
+        defeatedEggnemies: 0,
       }),
       (model) =>
         EggUtils.updateInModel(model, {

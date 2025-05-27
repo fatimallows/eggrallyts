@@ -16,8 +16,7 @@ export const Config = S.Struct({
   fps: S.Number,
   canvasId: S.String,
   velocity: S.Number,
-  maxHp: S.Number,
-  eggInvincibilityFrames: S.Int,
+  eggInvincibilityFrames: S.Number,
 })
 export type Config = typeof Config.Type
 
@@ -29,6 +28,7 @@ export const Egg = S.Struct({
   vx: S.Number,
   vy: S.Number,
   hp: S.Number,
+  maxHp: S.Number,
 })
 export type Egg = typeof Egg.Type
 
@@ -40,6 +40,8 @@ export const Eggnemies = S.Struct({
   vx: S.Number,
   vy: S.Number,
   id: S.Number,
+  hp: S.Number, 
+  maxHp: S.Number,
 })
 export type Eggnemies = typeof Eggnemies.Type
 
@@ -51,6 +53,7 @@ export const Model = S.Struct({
   score: S.Number,
   ticks: S.Number,
   firstCollisionTick: S.Int,
+  defeatedEggnemies: S.Number,
 })
 export type Model = typeof Model.Type
 
@@ -66,6 +69,7 @@ export const Settings = S.Struct({
   eggnemiesCount: S.Number,
   eggnemyWidth: S.Number,
   eggnemyHeight: S.Number,
+  eggnemyMaxHp: S.Number
 })
 export type Settings = typeof Settings.Type
 
@@ -79,6 +83,19 @@ export const EggnemiesUtils = {
       ...model,
       eggnemies: pipe(model.eggnemies, Array.map((eggnemy) => Eggnemies.make({...eggnemy, ...updates})))
     }),
+  spawn: (config: Config, onScreen: boolean = true, eggnemies: Eggnemies) => {
+    const x = onScreen 
+      ? Math.random() * config.screenWidth
+      : Math.random() * config.worldWidth - config.worldWidth / 2
+    const y = onScreen
+      ? Math.random() * config.screenHeight
+      : Math.random() * config.worldHeight - config.worldHeight / 2
+    return Eggnemies.make({
+      ...eggnemies,
+      x,
+      y,
+    })
+  }
 }
 
 export const EggUtils = {
@@ -94,4 +111,12 @@ export const EggUtils = {
         ...updates,
       }),
     }),
+  handleDefeat: (model: Model, eggnemiesId: number) => { 
+    const updatedEggnemies = model.eggnemies.filter(e => e.id !== eggnemiesId)
+    return Model.make({
+      ...model,
+      eggnemies: updatedEggnemies,
+      defeatedEggnemies: model.defeatedEggnemies + 1,
+    })
+  }
 }

@@ -17,41 +17,59 @@ export const view = (model: Model) =>
   pipe(model, ({ config, egg }) => [
     Canvas.Clear.make({ color: "black" }),
     Canvas.OutlinedRectangle.make({
-      x: 0, y: 0,
+      x: 0, 
+      y: 0,
       width: config.worldWidth,
       height: config.worldHeight,
       color: "white", lineWidth: 2
     }),
+
     Canvas.SolidRectangle.make({
-      x: egg.x, y: egg.y,
+      x: egg.x, 
+      y: egg.y,
       color: "white",
       height: egg.height,
       width: egg.width
     }),
+
     Canvas.Text.make({
       x: egg.x + egg.width / 2,
       y: egg.y + egg.height + 15,
       color: "white",
-      text: `${egg.hp}/${config.maxHp}`,
+      text: `${egg.hp}/${egg.maxHp}`,
       fontSize: 12
     }),
+
     Canvas.CanvasImage.make({
       x: egg.x - 22,
       y: egg.y - 22,
       src: "resources/poring.gif"
     }),
-    ...model.eggnemies.map((e) =>
+
+    ...model.eggnemies.map((eggnemies) =>
       Canvas.SolidRectangle.make({
-        x: e.x, y: e.y,
+        x: eggnemies.x, 
+        y: eggnemies.y,  
         color: "gray",
-        height: e.height,
-        width: e.width
-      })
+        height: eggnemies.height,
+        width: eggnemies.width
+      }),
     ),
+
+    ...model.eggnemies.map((eggnemies) =>
+      Canvas.Text.make({
+          x: eggnemies.x + eggnemies.width / 2,
+          y: eggnemies.y + eggnemies.height + 15,
+          color: "white",
+          text: `${eggnemies.hp}/${eggnemies.maxHp}`,
+          fontSize: 12
+        })
+      ),
+
     Canvas.Text.make({
       x: config.worldWidth / 2,
       y: 50,
-      text: `${model.score}`,
+      text: `${model.defeatedEggnemies}`,
       color: "white",
       fontSize: 20
     }),
