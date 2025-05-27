@@ -93,7 +93,8 @@ export const Settings = S.Struct({
   eggnemiesCount: S.Number,
   eggnemyWidth: S.Number,
   eggnemyHeight: S.Number,
-  eggnemyMaxHp: S.Number
+  eggnemyMaxHp: S.Number,
+  eggnemyInitHP: S.Number,
 })
 export type Settings = typeof Settings.Type
 
