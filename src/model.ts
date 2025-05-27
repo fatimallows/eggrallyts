@@ -45,7 +45,7 @@ export const Config = S.Struct({
   fps: S.Number,
   canvasId: S.String,
   velocity: S.Number,
-  eggInvincibilityFrames: S.Number,
+  eggInvincibilityFrames: S.Number, 
   eggnemiesCount: S.Number,
 })
 export type Config = typeof Config.Type
@@ -75,11 +75,26 @@ export const Eggnemies = S.Struct({
 })
 export type Eggnemies = typeof Eggnemies.Type
 
+export const Boss = S.Struct({
+  x: S.Number,
+  y: S.Number,
+  height: S.Number,
+  width: S.Number,
+  vx: S.Number,
+  vy: S.Number,
+  hp: S.Number, 
+  maxHp: S.Number,
+})
+type Boss = typeof Boss.Type
+
 export const Model = S.Struct({
-    world: World,
+  world: World,
   config: Config,
   egg: Egg,
   eggnemies: S.Array(Eggnemies),
+  eggnemiesSpawned: S.Number,
+  boss: S.Union(Boss, S.Null),
+  isBossActive: S.Boolean,
   isGameOver: S.Boolean,
   score: S.Number,
   ticks: S.Number,
@@ -95,14 +110,20 @@ export const Settings = S.Struct({
   screenWidth: S.Number,
   worldWidth: S.Number,
   worldHeight: S.Number,
+  // egg properties
   eggInitHP: S.Number,
   eggWidth: S.Number,
   eggHeight: S.Number,
+  // eggnemies properties
   eggnemiesCount: S.Number,
   eggnemyWidth: S.Number,
   eggnemyHeight: S.Number,
-  eggnemyMaxHp: S.Number,
   eggnemyInitHP: S.Number,
+  // boss properties
+  bossWidth: S.Number,
+  bossHeight: S.Number,
+  bossInitHP: S.Number,
+  eggnemiesToSpawnBoss: S.Number,
 })
 export type Settings = typeof Settings.Type
 
@@ -136,19 +157,22 @@ export const EggUtils = {
   bottom: (egg: Egg) => egg.y + egg.height,
   left: (egg: Egg) => egg.x,
   right: (egg: Egg) => egg.x + egg.width,
-  updateInModel: (model: Model, updates: Partial<Egg>) =>
-    Model.make({
+  updateInModel: (model: Model, updates: Partial<Egg>) => {
+    const updatedModel = Model.make({
       ...model,
       egg: Egg.make({
         ...model.egg,
         ...updates,
       }),
-    }),
+    });
+    return updatedModel;
+  },
   handleDefeat: (model: Model, eggnemiesId: number) => { 
     const updatedEggnemies = model.eggnemies.filter(e => e.id !== eggnemiesId)
     return Model.make({
       ...model,
       eggnemies: updatedEggnemies,
+      defeatedEggnemies: model.defeatedEggnemies + 1,
     })
   }
 }

@@ -40,7 +40,7 @@ fetch("settings.json")
           maxHp: settings.eggInitHP,
         }),
         eggnemies: pipe(
-          Array.range(1, settings.eggnemiesCount-1).map((id) =>
+          Array.range(1, Math.max(1, Math.floor(settings.eggnemiesCount * 0.3))).map((id) =>
             Eggnemies.make({
               x: Math.random() * settings.worldWidth,
               y: Math.random() * settings.worldHeight,
@@ -54,6 +54,9 @@ fetch("settings.json")
             })
           )
         ),
+        eggnemiesSpawned: Math.max(1, Math.floor(settings.eggnemiesCount * 0.3)),
+        boss: null,
+        isBossActive: false,
         isGameOver: false,
         score: 0,
         ticks: 0,
@@ -68,7 +71,7 @@ fetch("settings.json")
         EggUtils.updateInModel(model, {
           x: model.config.worldWidth / 2,
           y: model.config.worldHeight / 2,
-        })
+        })   
     )
 
     const root = document.getElementById("app")!

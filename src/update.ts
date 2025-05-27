@@ -1,7 +1,7 @@
 import { Match, pipe } from "effect"
 import { Cmd } from "cs12242-mvu/src/index"
 import { CanvasMsg } from "cs12242-mvu/src/canvas"
-import { Model, WorldUtils, EggUtils, Eggnemies, Egg, Rectangle, Settings } from "./model"
+import { Model, WorldUtils, EggUtils, Eggnemies, Egg, Rectangle, Settings, Boss } from "./model"
 
 export type Msg = CanvasMsg
 
@@ -98,13 +98,10 @@ export const attack = (model: Model): Model => {
   return Model.make({ ...model, defeatedEggnemies: model.config.eggnemiesCount - eggnemies.length, eggnemies })
 }
 
-export const spawnEggnemies = (model: Model, settings: Settings) => {
-  const shouldSpawn = model.ticks % 300 === 0
+export const spawnEggnemies = (model: Model, settings: Settings) => {  
+  const shouldSpawn = model.ticks % 300 === 0 && model.eggnemiesSpawned < settings.eggnemiesCount
   if (!shouldSpawn) return model
-  console.log("Spawning new eggnemy:", {
-    hp: settings.eggnemyInitHP,
-    maxHp: settings.eggnemyInitHP,
-  });
+
   const onScreen = Math.random() < 0.5
   const x = onScreen
   ? Math.random() * settings.screenWidth
@@ -126,6 +123,64 @@ export const spawnEggnemies = (model: Model, settings: Settings) => {
   return Model.make({
     ...model,
     eggnemies: [...model.eggnemies, spawn],
+    eggnemiesSpawned: model.eggnemiesSpawned + 1,
+  })
+}
+
+export const spawnBoss = (model: Model, settings: Settings) => {
+  model.defeatedEggnemies >= settings.eggnemiesToSpawnBoss && model.boss === null
+    ? Model.make({ 
+      ...model, 
+      boss: Boss.make({
+        x: model.world.x + model.world.width / 2 - settings.bossWidth / 2,
+        y: model.world.y + model.world.height / 2 - settings.bossHeight / 2,
+        width: settings.bossWidth,
+        height: settings.bossHeight,
+        vx: 0,
+        vy: 0,
+        hp: settings.bossInitHP,
+        maxHp: settings.bossInitHP,
+      }),
+      isBossActive: true,
+    })
+    : Model.make({ 
+      ...model, 
+      isBossActive: false 
+    })
+  }
+
+const bossSpeed = 3
+
+export const updateBoss = (model: Model): Model => {
+  const boss =
+    model.boss !== null && model.isBossActive
+      ? Boss.make({
+          ...model.boss,
+          ...(() => {
+            const dx = model.egg.x - model.boss!.x
+            const dy = model.egg.y - model.boss!.y
+            const distance = Math.sqrt(dx * dx + dy * dy)
+            const normalizedDx = distance === 0 ? 0 : dx / distance
+            const normalizedDy = distance === 0 ? 0 : dy / distance
+            const vx = normalizedDx * bossSpeed
+            const vy = normalizedDy * bossSpeed
+            return {
+              x: model.boss!.x + vx,
+              y: model.boss!.y + vy,
+            }
+          })(),
+        })
+      : model.boss
+
+  const egg =
+    boss && model.isBossActive && isinCollision(model.egg, boss)
+      ? Egg.make({ ...model.egg, hp: model.egg.hp - 1 })
+      : model.egg
+
+  return Model.make({
+    ...model,
+    boss,
+    egg,
   })
 }
 
@@ -175,6 +230,8 @@ export const makeUpdate = (initModel: Model, settings: Settings) => (msg: Msg, m
           updateEggnemies, 
           updateCollision, 
           (model) => spawnEggnemies(model, settings),
+          (model) => spawnBoss(model, settings),
+          updateBoss,
           updateGameOver, 
           updateTicks,
           updateTime)
