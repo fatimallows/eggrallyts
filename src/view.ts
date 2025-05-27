@@ -62,7 +62,7 @@ export const view = (model: Model) =>
       Canvas.Text.make({
           x: eggnemies.x + eggnemies.width / 2,
           y: eggnemies.y + eggnemies.height + 15,
-          color: "white",
+          color: "red",
           text: `${eggnemies.hp}/${eggnemies.maxHp}`,
           fontSize: 12
         })
@@ -72,6 +72,14 @@ export const view = (model: Model) =>
       x: world.x + config.worldWidth + 50,
       y: world.y + 30,
       text: `${String(model.timer.minutes)}:${String(model.timer.seconds).padStart(2, '0')}`,
+      color: "white",
+      fontSize: 20
+    }),
+
+    Canvas.Text.make({
+      x: world.x - 40,
+      y: world.y + 30,
+      text: `${String(model.defeatedEggnemies)}`,
       color: "white",
       fontSize: 20
     }),

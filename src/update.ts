@@ -92,8 +92,10 @@ export const updateTime = (model: Model): Model => {
 export const attack = (model: Model): Model => {
   if (model.isGameOver) return model
   const egg = model.egg
-  const eggnemies = model.eggnemies.filter((e) => !isinCollision(egg, e))
-  return Model.make({ ...model, eggnemies })
+  let eggnemies = model.eggnemies.filter((e) => isinCollision(egg, e))
+  eggnemies = eggnemies.map((e)=> Eggnemies.make({...e, hp: e.hp - 1 }))
+  eggnemies = [...eggnemies.filter((e) => e.hp > 0), ...model.eggnemies.filter((e) => !isinCollision(egg, e))]
+  return Model.make({ ...model, defeatedEggnemies: model.config.eggnemiesCount - eggnemies.length, eggnemies })
 }
 
 export const spawnEggnemies = (model: Model, settings: Settings) => {

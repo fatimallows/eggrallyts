@@ -46,6 +46,7 @@ export const Config = S.Struct({
   canvasId: S.String,
   velocity: S.Number,
   eggInvincibilityFrames: S.Number,
+  eggnemiesCount: S.Number,
 })
 export type Config = typeof Config.Type
 
@@ -148,7 +149,6 @@ export const EggUtils = {
     return Model.make({
       ...model,
       eggnemies: updatedEggnemies,
-      defeatedEggnemies: model.defeatedEggnemies + 1,
     })
   }
 }
