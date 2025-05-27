@@ -1,7 +1,7 @@
 import { startModelCmd } from "cs12242-mvu/src/index"
 import { canvasView } from "cs12242-mvu/src/canvas"
 import { pipe, Array } from "effect"
-import { Config, Egg, Eggnemies, Model, Settings, EggUtils } from "./model"
+import { World, Config, Egg, Eggnemies, Model, Settings, EggUtils } from "./model"
 import { view } from "./view"
 import { makeUpdate } from "./update"
 
@@ -12,6 +12,12 @@ fetch("settings.json")
 
     const initModel = pipe(
       Model.make({
+        world: World.make({
+          x: 0,
+          y: 0,
+          width: settings.worldWidth,
+          height: settings.worldHeight,
+        }),
         config: Config.make({
           screenWidth: settings.screenWidth,
           screenHeight: settings.screenHeight,

@@ -14,11 +14,11 @@ export const viewGameOver = (model: Model) =>
     : Canvas.NullElement.make()
 
 export const view = (model: Model) =>
-  pipe(model, ({ config, egg }) => [
+  pipe(model, ({ world, config, egg }) => [
     Canvas.Clear.make({ color: "black" }),
     Canvas.OutlinedRectangle.make({
-      x: 0, 
-      y: 0,
+      x: world.x, 
+      y: world.y,
       width: config.worldWidth,
       height: config.worldHeight,
       color: "white", lineWidth: 2

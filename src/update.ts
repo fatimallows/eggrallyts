@@ -1,7 +1,7 @@
 import { Match, pipe } from "effect"
 import { Cmd } from "cs12242-mvu/src/index"
 import { CanvasMsg } from "cs12242-mvu/src/canvas"
-import { Model, EggUtils, Eggnemies, Egg, Rectangle } from "./model"
+import { Model, WorldUtils, EggUtils, Eggnemies, Egg, Rectangle } from "./model"
 
 export type Msg = CanvasMsg
 
@@ -70,6 +70,7 @@ export const updateEggnemies = (model: Model): Model =>
 export const updateGameOver = (model: Model) => {
   const isGameOver = model.egg.hp <= 0 || model.eggnemies.length === 0
   return isGameOver ? Model.make({ ...model, isGameOver: true }) : model
+
 }
 
 export const attack = (model: Model): Model => {
@@ -82,15 +83,15 @@ export const attack = (model: Model): Model => {
 export const makeUpdate = (initModel: Model) => (msg: Msg, model: Model): Model | { model: Model; cmd: Cmd<Msg> } =>
   Match.value(msg).pipe(
     Match.tag("Canvas.MsgKeyDown", ({ key }) => {
-      let x = model.egg.x
-      let y = model.egg.y
-      const velocity = model.config.velocity
+      let x = model.world.x
+      let y = model.world.y
+      const velocity = -model.config.velocity
 
       if (!model.isGameOver) {
-        if (key === "s") y += velocity
-        else if (key === "w") y -= velocity
-        else if (key === "a") x -= velocity
-        else if (key === "d") x += velocity
+        if (key === "w") y = Math.min(y - velocity,EggUtils.top(model.egg))
+        else if (key === "s") y = Math.max(y + velocity, (model.egg.y + model.egg.height) - model.world.height)
+        else if (key === "a") x = Math.min(x-velocity, EggUtils.left(model.egg))
+        else if (key === "d") x = Math.max(x+velocity, (model.egg.x+model.egg.width)-model.world.width)
         else if (key === "l") return attack(model)
         else if (key === "r") return initModel
         else return model
@@ -98,10 +99,7 @@ export const makeUpdate = (initModel: Model) => (msg: Msg, model: Model): Model 
 
       if (key === "r") return initModel
 
-      y = Math.max(0, Math.min(y, model.config.worldHeight - model.egg.height))
-      x = Math.max(0, Math.min(x, model.config.worldWidth - model.egg.width))
-
-      return EggUtils.updateInModel(model, { x, y })
+      return WorldUtils.updateInModel(model, { x, y })
     }),
     Match.tag("Canvas.MsgTick", () =>
       model.isGameOver

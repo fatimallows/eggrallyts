@@ -1,5 +1,28 @@
 import { Array, Schema as S, pipe } from "effect"
 
+export type World = typeof World.Type
+export const World = S.Struct({
+  x: S.Number,
+  y: S.Number,
+  width: S.Number,
+  height: S.Number,
+})
+
+export const WorldUtils = {
+  top: (world: World) => world.y,
+  bottom: (world: World) => world.y + world.height,
+  left:  (world: World) => world.x,
+  right:  (world: World) => world.x + world.width,
+  updateInModel: (model: Model, updates: Partial<World>) =>
+    Model.make({
+      ...model,
+      world: World.make({
+        ...model.world,
+        ...updates,
+      })
+    }),
+}
+
 export const Rectangle = S.Struct({
   x: S.Number,
   y: S.Number,
@@ -46,6 +69,7 @@ export const Eggnemies = S.Struct({
 export type Eggnemies = typeof Eggnemies.Type
 
 export const Model = S.Struct({
+    world: World,
   config: Config,
   egg: Egg,
   eggnemies: S.Array(Eggnemies),
