@@ -86,7 +86,7 @@ export const updateEggnemies = (model: Model): Model =>
   })
 
 export const updateGameOver = (model: Model) => {
-  const isGameOver = model.egg.hp <= 0 || (model.isBossActive && model.boss.hp <= 0)
+  const isGameOver = model.egg.hp <= 0 || (model.isBossActive && model.boss.hp <= 0) && model.defeatedEggnemies ===model.config.eggnemiesCount
   return isGameOver 
   ? Model.make({ ...model, isGameOver: true }) 
   : model

@@ -7,7 +7,7 @@ export const viewGameOver = (model: Model) =>
     Canvas.Text.make({
       x: model.egg.x + model.egg.width / 2,
       y: model.egg.x -10,
-      text: model.isBossActive && model.boss.hp <= 0 ? "YOU WIN" : "GAME OVER",
+      text: model.isBossActive && model.boss.hp <= 0 && model.defeatedEggnemies === model.config.eggnemiesCount ? "YOU WIN" : "GAME OVER",
       color: "white",
       fontSize:15,
     })
@@ -24,7 +24,7 @@ export const view = (model: Model) =>
       color: "white", lineWidth: 2
     }),
 
-    ...(model.isBossActive
+    ...(model.isBossActive && model.boss.hp > 0
   ? [
       Canvas.SolidRectangle.make({
         x: model.boss.x,
