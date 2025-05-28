@@ -1,9 +1,7 @@
-import { Match, pipe } from "effect"
+import { Effect, Match, pipe } from "effect"
 import { Cmd } from "cs12242-mvu/src/index"
 import { CanvasMsg } from "cs12242-mvu/src/canvas"
-import { Model, WorldUtils, EggUtils, Eggnemies, Egg, Rectangle, Settings } from "./model"
-
-export type Msg = CanvasMsg
+import { Model, WorldUtils, EggUtils, Eggnemies, Egg, Rectangle, Settings, Timer } from "./model"
 
 const isinCollision = (rect1: Rectangle, rect2: Rectangle) => {
   return (
@@ -85,11 +83,21 @@ export const updateEggnemies = (model: Model): Model =>
     }),
   })
 
-export const updateGameOver = (model: Model) => {
+export const updateGameOver = (model: Model): Model => {
   const isGameOver = model.egg.hp <= 0 || (model.isBossActive && model.boss.hp <= 0)
-  return isGameOver 
-  ? Model.make({ ...model, isGameOver: true }) 
-  : model
+
+  if (isGameOver && !model.isGameOver) {
+    const updatedLeaderboard = writeLeaderboard([...model.leaderboard], model.timer)
+    LeaderboardUtils.write(updatedLeaderboard)
+
+    return Model.make({ 
+      ...model, 
+      isGameOver: true,
+      leaderboard: updatedLeaderboard,
+    })
+  }
+
+  return model
 }
 
 export const updateTime = (model: Model): Model => {
@@ -176,6 +184,7 @@ export const restart = (model: Model, settings: Settings): Model => {
       seconds: 0,
       minutes: 0,
     },
+    leaderboard: LeaderboardUtils.read(),
   })}
 
 export const spawnEggnemies = (model: Model, settings: Settings) => {  
@@ -257,6 +266,54 @@ export const updateBoss = (model: Model): Model => {
     boss,
   })
 }
+
+const formatTime = (time: Timer | undefined): string => {
+  if (!time) return "--:--";
+  const minutes = time.minutes ?? 0
+  const seconds = time.seconds ?? 0
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
+}
+
+export const LeaderboardUtils = {
+  read: (): Timer[] => {
+    try {
+      const data = localStorage.getItem("leaderboard")
+      return data ? JSON.parse(data) : []
+    } catch (error) {
+      console.error("Failed to read leaderboard:", error)
+      return []
+    }
+  },
+
+  write: (leaderboard: Timer[]) => {
+    try {
+      localStorage.setItem("leaderboard", JSON.stringify(leaderboard))
+    } catch (error) {
+      console.error("Failed to write leaderboard:", error)
+    }
+  }
+}
+
+const writeLeaderboard = (
+  leaderboard: Timer[],
+  currentTime: Timer
+): Timer[] => {
+  const updated = [...leaderboard, currentTime]
+
+  updated.sort((a, b) => {
+    if (a.minutes === b.minutes) {
+      return a.seconds - b.seconds
+    }
+    return a.minutes - b.minutes
+  })
+
+  const maxEntries = 3
+  return updated.slice(0, 3)
+}
+
+// ====== UPDATE FUNCTION ======
+
+type Msg = CanvasMsg
 
 export const makeUpdate = (initModel: Model, settings: Settings) => (msg: Msg, model: Model): Model | { model: Model; cmd: Cmd<Msg> } =>
   Match.value(msg).pipe(

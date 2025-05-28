@@ -1,7 +1,7 @@
 import { startModelCmd } from "cs12242-mvu/src/index"
 import { canvasView } from "cs12242-mvu/src/canvas"
 import { pipe, Array } from "effect"
-import { World, Config, Egg, Eggnemies, Model, Settings, EggUtils } from "./model"
+import { World, Config, Egg, Eggnemies, Model, Settings, EggUtils, LeaderboardUtils } from "./model"
 import { view } from "./view"
 import { makeUpdate } from "./update"
 
@@ -75,7 +75,8 @@ fetch("settings.json")
         timer: {
           seconds: 0,
           minutes: 0,
-        }
+        },
+        leaderboard: LeaderboardUtils.read(),
       }),
       (model) =>
         EggUtils.updateInModel(model, {

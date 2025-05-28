@@ -106,7 +106,29 @@ export const view = (model: Model) =>
       fontSize: 20
     }),
     
-    
+    ...[
+      Canvas.Text.make({
+      x: 20,
+      y: 70,
+      text: `Top 1  ${model.leaderboard[0]?.minutes}:${model.leaderboard[0]?.seconds}`,
+      color: "white",
+      fontSize: 14,
+    }),
+    Canvas.Text.make({
+      x: 20,
+      y: 90,
+      text: `    2  ${model.leaderboard[1]?.minutes}:${model.leaderboard[1]?.seconds}`,
+      color: "white",
+      fontSize: 14,
+    }),
+    Canvas.Text.make({
+      x: 20,
+      y: 110,
+      text: `    3  ${model.leaderboard[2]?.minutes}:${model.leaderboard[2]?.seconds}`,
+      color: "white",
+      fontSize: 14,
+    }),
+    ],
 
     ...viewGameOver(model),
   ])

@@ -1,5 +1,7 @@
 import { Array, Schema as S, pipe } from "effect"
 
+// OBJECTS
+
 export type World = typeof World.Type
 export const World = S.Struct({
   x: S.Number,
@@ -60,6 +62,8 @@ export const Eggnemies = S.Struct({
 })
 export type Eggnemies = typeof Eggnemies.Type
 
+// MODEL & SETTINGS
+
 export const Model = S.Struct({
   world: World,
   config: Config,
@@ -74,6 +78,7 @@ export const Model = S.Struct({
   firstCollisionTick: S.Int,
   defeatedEggnemies: S.Number,
   timer: Timer,
+  leaderboard: S.Array(Timer),
 })
 export type Model = typeof Model.Type
 
@@ -99,6 +104,8 @@ export const Settings = S.Struct({
   eggnemiesToSpawnBoss: S.Number,
 })
 export type Settings = typeof Settings.Type
+
+// UTILS
 
 export const EggnemiesUtils = {
   top: (eggnemies: Eggnemies) => eggnemies.y,
@@ -164,3 +171,31 @@ export const WorldUtils = {
       })
     }),
 }
+
+export const LeaderboardUtils = {
+  read: (): Timer[] => {
+    try {
+      const raw = localStorage.getItem("leaderboard");
+      const parsed = raw ? JSON.parse(raw) : [];
+
+      if (!Array.isArray(parsed)) return [];
+
+      return parsed.filter((e): e is Timer =>
+        typeof e === "object" &&
+        e !== null &&
+        typeof (e as any).minutes === "number" &&
+        typeof (e as any).seconds === "number"
+      );
+    } catch {
+      return [];
+    }
+  },
+
+  write: (leaderboard: Timer[]): void => {
+    try {
+      localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+    } catch (error) {
+      console.error("Failed to write leaderboard:", error);
+    }
+  },
+};

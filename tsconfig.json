@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "types": ["node"], // Include Node.js type definitions
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "target": "es6",
+    "module": "commonjs"
+  }
+}
