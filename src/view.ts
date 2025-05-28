@@ -3,11 +3,17 @@ import { Model } from "./model"
 import { pipe } from "effect"
 
 export const viewGameOver = (model: Model) =>
-  model.isGameOver ?
+  model.isGameOver || (model.isBossActive && model.boss.hp <= 0) ?
     Canvas.Text.make({
       x: model.egg.x + model.egg.width / 2,
       y: model.egg.x -10,
+<<<<<<< HEAD
       text: model.isBossActive && model.boss.hp <= 0 ? "YOU WIN" : "GAME OVER",
+=======
+      text: (model.isBossActive && model.boss.hp <= 0 || model.defeatedEggnemies === model.config.eggnemiesCount)
+       ? "YOU WIN" 
+       : "GAME OVER",
+>>>>>>> d9e7e56277b304b174c98fe6a48be5ee4be1cc9b
       color: "white",
       fontSize:15,
     })
@@ -43,14 +49,6 @@ export const view = (model: Model) =>
       }),
     ]
   : []),
-
-    // Canvas.OutlinedRectangle.make({
-    //   x: 0, 
-    //   y: 0,
-    //   width: config.worldWidth,
-    //   height: config.worldHeight,
-    //   color: "white", lineWidth: 2
-    // }),
 
     Canvas.SolidRectangle.make({
       x: egg.x, 
