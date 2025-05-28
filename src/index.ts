@@ -36,8 +36,14 @@ fetch("settings.json")
           height: settings.eggHeight,
           vy: 0, 
           vx: 0,
+          eggxperience: 0,
+          attack: settings.eggInitAttack,
+          speed: settings.eggInitSpeed,
           hp: settings.eggInitHP,
           maxHp: settings.eggInitHP,
+          levelUp: 0,
+          level: 0,
+          
         }),
         eggnemies: pipe(
           Array.range(1, Math.max(1, Math.floor(settings.eggnemiesCount * 0.3))).map((id) =>
@@ -82,9 +88,9 @@ fetch("settings.json")
         EggUtils.updateInModel(model, {
           x: model.config.worldWidth / 2,
           y: model.config.worldHeight / 2,
+        
         })   
     )
-
     const root = document.getElementById("app")!
     const { config } = initModel
     const update = makeUpdate(initModel, settings)

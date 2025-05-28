@@ -46,6 +46,11 @@ export const Egg = S.Struct({
   vy: S.Number,
   hp: S.Number,
   maxHp: S.Number,
+  eggxperience: S.Number,
+  attack: S.Number,
+  speed: S.Number,
+  levelUp: S.Number,
+  level: S.Number,
 })
 export type Egg = typeof Egg.Type
 
@@ -92,6 +97,12 @@ export const Settings = S.Struct({
   eggInitHP: S.Number,
   eggWidth: S.Number,
   eggHeight: S.Number,
+  eggInitAttack: S.Number,
+  eggInitSpeed: S.Number,
+  eggxperienceLimit: S.Number,
+  eggHPIncrement: S.Number,
+  eggAttackIncrement: S.Number,
+  eggSpeedIncrement: S.Number,
   // eggnemies properties
   eggnemiesCount: S.Number,
   eggnemyWidth: S.Number,

@@ -146,6 +146,15 @@ export const updateTime = (model: Model): Model => {
         })
 }
 
+
+export const updateEggxperience = (model: Model, settings: Settings): Model => {
+  return EggUtils.updateInModel(model, {
+    eggxperience: model.defeatedEggnemies,
+    levelUp: Math.floor(model.egg.eggxperience/settings.eggxperienceLimit)-model.egg.level
+  })
+}
+  
+
 export const attack = (model: Model): Model => {
   if (model.isGameOver) return model
   const egg = model.egg
@@ -156,14 +165,14 @@ export const attack = (model: Model): Model => {
   const updatedCollidedEggnemies = collidedEggnemies.map((e)=> 
     Eggnemies.make({
       ...e, 
-      hp: e.hp - 1 })
+      hp: e.hp - egg.attack})
 )
   const defeatedEggnemies = updatedCollidedEggnemies.filter((e) => 
     e.hp <= 0)
 
   const updatedBoss = isinCollision(egg, model.boss)? Eggnemies.make({
       ...model.boss,
-      hp: model.boss.hp - 1,
+      hp: model.boss.hp - egg.attack,
     }) : model.boss
   
   const survivingEggnemies = [
@@ -193,6 +202,11 @@ export const restart = (model: Model, settings: Settings): Model => {
       vy: 0,
       hp: settings.eggInitHP,
       maxHp: settings.eggInitHP,
+      eggxperience: 0,
+      attack: settings.eggInitAttack,
+      speed: settings.eggInitSpeed,
+      levelUp: 0,
+      level: 0,
     }),
     eggnemies: [],
     eggnemiesSpawned: 0,
@@ -314,12 +328,6 @@ export const updateBoss = (model: Model): Model => {
   })
 }
 
-const formatTime = (time: Timer | undefined): string => {
-  if (!time) return "--:--";
-  const minutes = time.minutes ?? 0
-  const seconds = time.seconds ?? 0
-  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
-}
 
 export const LeaderboardUtils = {
   read: (): Timer[] => {
@@ -366,18 +374,22 @@ export const makeUpdate = (initModel: Model, settings: Settings) => (msg: Msg, m
   Match.value(msg).pipe(
     Match.tag("Canvas.MsgKeyDown", ({ key }) => {
 
-      console.log("eggnemies spawned:" , model.eggnemiesSpawned)
-      console.log("eggnemies defeated:" , model.defeatedEggnemies)
-      console.log("eggnemies length:" , model.eggnemies.length)
+
 
       let x = model.world.x
       let y = model.world.y
-      const velocity = -model.config.velocity
+      const velocity = -model.egg.speed
 
       if (model.isGameOver) {
         if (key === "r"){
             return restart(initModel, settings)
         } return model
+      }
+      console.log("model egg level up:", model.egg.levelUp)
+        if (model.egg.levelUp>0){
+        if (key === "1") return EggUtils.updateInModel(model, {level: model.egg.level+1, hp: model.egg.hp + settings.eggHPIncrement, maxHp: model.egg.maxHp + settings.eggHPIncrement})
+        else if (key === "2") return EggUtils.updateInModel(model, {level: model.egg.level+1,attack: model.egg.attack + settings.eggAttackIncrement})
+        else if (key === "3") return EggUtils.updateInModel(model, {level: model.egg.level+1, speed: model.egg.speed + settings.eggSpeedIncrement})
       }
         if (key === "w"){
             y = Math.min(y - velocity,EggUtils.top(model.egg))
@@ -422,7 +434,10 @@ export const makeUpdate = (initModel: Model, settings: Settings) => (msg: Msg, m
           updateBoss,
           updateGameOver, 
           updateTicks,
-          updateTime)
+          updateTime,
+          (model) => updateEggxperience(model, settings),
+
+        )
     ),
     Match.orElse(() => model)
   )

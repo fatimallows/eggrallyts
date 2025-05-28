@@ -143,6 +143,66 @@ export const view = (model: Model) =>
         fontSize: 10,
         font: "press-start-2p",
       }),
+      Canvas.Text.make({
+        x: world.x + config.worldWidth - 40,
+        y: world.y + config.worldHeight + 40, 
+        text: `ATK   ${egg.attack}`,
+        color: "white",
+        fontSize: 10,
+        font: "press-start-2p",
+      }),
+      Canvas.Text.make({
+        x: world.x + config.worldWidth - 40,
+        y: world.y + config.worldHeight + 60, 
+        text: `SPD   ${egg.speed}`,
+        color: "white",
+        fontSize: 10,
+        font: "press-start-2p",
+      }),
+      Canvas.Text.make({
+        x: world.x + config.worldWidth - 40,
+        y: world.y + config.worldHeight + 80, 
+        text: `EXP   ${egg.eggxperience}`,
+        color: "white",
+        fontSize: 10,
+        font: "press-start-2p",
+      }),
+
+      ...!model.isGameOver&&egg.levelUp>0? [
+        Canvas.Text.make({
+        x: config.worldWidth/2 + egg.width/2,
+        y: config.worldHeight/2 - 100, 
+        text: `LEVEL UP`,
+        color: "white",
+        fontSize: 20,
+        font: "press-start-2p",
+      }),
+        Canvas.Text.make({
+        x: config.worldWidth/2 + egg.width/2,
+        y: config.worldHeight/2 - 70, 
+        text: `[1] Increase HP`,
+        color: "white",
+        fontSize: 15,
+        font: "press-start-2p",
+      }),
+      Canvas.Text.make({
+        x: config.worldWidth/2 + egg.width/2,
+        y: config.worldHeight/2 - 50, 
+        text: `[2] Increase ATK`,
+        color: "white",
+        fontSize: 15,
+        font: "press-start-2p",
+      }),
+      Canvas.Text.make({
+        x: config.worldWidth/2 + egg.width/2,
+        y: config.worldHeight/2 - 30, 
+        text: `[3] Increase SPD`,
+        color: "white",
+        fontSize: 15,
+        font: "press-start-2p",
+      }),
+    ]: []
+      
     ],
 
     ...viewGameOver(model),
