@@ -231,7 +231,11 @@ export const makeUpdate = (initModel: Model, settings: Settings) => (msg: Msg, m
       let y = model.world.y
       const velocity = -model.config.velocity
 
-      if (!model.isGameOver) {
+      if (model.isGameOver) {
+        if (key === "r"){
+            return initModel
+        } return model
+      }
         if (key === "w"){
             y = Math.min(y - velocity,EggUtils.top(model.egg))
             const eggnemies = model.eggnemies.map((e) => Eggnemies.make({...e, y: e.y - velocity}))
@@ -258,14 +262,11 @@ export const makeUpdate = (initModel: Model, settings: Settings) => (msg: Msg, m
             model = x === (model.egg.x+model.egg.width)-model.world.width ? model : Model.make({ ...model, eggnemies, boss})
         }
         else if (key === "l") return attack(model)
-        else if (key === "r") return initModel
         else return model
-      }
-
-      if (key === "r") return initModel
 
       return WorldUtils.updateInModel(model, { x, y })
-    }),
+    }
+  ),
     Match.tag("Canvas.MsgTick", () =>
       model.isGameOver
         ? model
