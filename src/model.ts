@@ -105,6 +105,12 @@ export const Settings = S.Struct({
 })
 export type Settings = typeof Settings.Type
 
+export const Point = S.Struct({
+  x: S.Number,
+  y: S.Number,
+})
+export type Point = typeof Point.Type
+
 // UTILS
 
 export const EggnemiesUtils = {
@@ -112,6 +118,10 @@ export const EggnemiesUtils = {
   bottom: (eggnemies: Eggnemies) => eggnemies.y + eggnemies.height,
   left: (eggnemies: Eggnemies) => eggnemies.x,
   right: (eggnemies: Eggnemies) => eggnemies.x + eggnemies.width,
+  center: (eggnemies: Eggnemies) => Point.make({
+    x: eggnemies.x + eggnemies.width / 2,
+    y: eggnemies.y + eggnemies.height / 2,
+  }),
   updateInModel: (model: Model, updates: Partial<Eggnemies>[]) =>
     Model.make({
       ...model,
