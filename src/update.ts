@@ -35,7 +35,7 @@ export const updateCollision = (model: Model): Model => {
 
   if (canTakeDamage) {
     if (model.isBossActive && model.boss.hp >0 && isinCollision(egg, boss)) {
-      currentHp -= 1
+      currentHp = currentHp - 3 <1? 0: currentHp -3
       firstCollisionTick = model.ticks
     }
   }
@@ -86,11 +86,7 @@ export const updateEggnemies = (model: Model): Model =>
   })
 
 export const updateGameOver = (model: Model) => {
-<<<<<<< HEAD
   const isGameOver = model.egg.hp <= 0 || (model.isBossActive && model.boss.hp <= 0)
-=======
-  const isGameOver = model.egg.hp <= 0 || (model.isBossActive && model.boss.hp <= 0) || model.defeatedEggnemies === model.config.eggnemiesCount
->>>>>>> d9e7e56277b304b174c98fe6a48be5ee4be1cc9b
   return isGameOver 
   ? Model.make({ ...model, isGameOver: true }) 
   : model

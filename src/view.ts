@@ -7,13 +7,7 @@ export const viewGameOver = (model: Model) =>
     Canvas.Text.make({
       x: model.egg.x + model.egg.width / 2,
       y: model.egg.x -10,
-<<<<<<< HEAD
       text: model.isBossActive && model.boss.hp <= 0 ? "YOU WIN" : "GAME OVER",
-=======
-      text: (model.isBossActive && model.boss.hp <= 0 || model.defeatedEggnemies === model.config.eggnemiesCount)
-       ? "YOU WIN" 
-       : "GAME OVER",
->>>>>>> d9e7e56277b304b174c98fe6a48be5ee4be1cc9b
       color: "white",
       fontSize:15,
     })
