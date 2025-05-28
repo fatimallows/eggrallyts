@@ -65,7 +65,7 @@ export const updateEggnemies = (model: Model): Model => {
     return model
   }
 
-  const eggnemySpeed = 3
+  const eggnemySpeed = 2
   const activeEggnemies = model.eggnemies.filter(e => e.hp > 0)
   let newEggnemies: Eggnemies[] = []
 
@@ -314,7 +314,7 @@ export const updateBoss = (model: Model): Model => {
   })
 }
 
-export const formatTime = (time: Timer | undefined): string => {
+const formatTime = (time: Timer | undefined): string => {
   if (!time) return "--:--";
   const minutes = time.minutes ?? 0
   const seconds = time.seconds ?? 0
@@ -358,6 +358,7 @@ const writeLeaderboard = (
   return updated.slice(0, 3)
 }
 
+// ====== UPDATE FUNCTION ======
 
 type Msg = CanvasMsg
 
