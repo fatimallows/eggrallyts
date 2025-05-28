@@ -34,7 +34,7 @@ export const updateCollision = (model: Model): Model => {
   }
 
   if (canTakeDamage) {
-    if (model.isBossActive && isinCollision(egg, boss)) {
+    if (model.isBossActive && model.boss.hp >0 && isinCollision(egg, boss)) {
       currentHp -= 1
       firstCollisionTick = model.ticks
     }
@@ -124,7 +124,7 @@ export const attack = (model: Model): Model => {
       ...model.boss,
       hp: model.boss.hp - 1,
     }) : model.boss
-
+  
   const survivingEggnemies = [
       ...updatedCollidedEggnemies.filter((e) => 
         e.hp > 0),
