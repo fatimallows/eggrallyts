@@ -40,10 +40,10 @@ fetch("settings.json")
           maxHp: settings.eggInitHP,
         }),
         eggnemies: pipe(
-          Array.range(1, Math.max(1, Math.floor(settings.eggnemiesCount * 0.3))).map((id) =>
+          Array.range(1, settings.eggnemiesCount).map((id) =>
             Eggnemies.make({
-              x: Math.random() * settings.worldWidth,
-              y: Math.random() * settings.worldHeight,
+              x: Math.random() * settings.screenWidth,
+              y: Math.random() * settings.screenHeight,
               width: settings.eggnemyWidth,
               height: settings.eggnemyHeight,
               vx: Math.random() * 2 - 1,
@@ -54,7 +54,6 @@ fetch("settings.json")
             })
           )
         ),
-        eggnemiesSpawned: Math.max(1, Math.floor(settings.eggnemiesCount * 0.3)),
         boss: null,
         isBossActive: false,
         isGameOver: false,
