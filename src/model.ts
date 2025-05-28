@@ -66,7 +66,7 @@ export const Model = S.Struct({
   egg: Egg,
   eggnemies: S.Array(Eggnemies),
   eggnemiesSpawned: S.Number,
-  boss: S.Union(Eggnemies, S.Null),
+  boss: Eggnemies,
   isBossActive: S.Boolean,
   isGameOver: S.Boolean,
   score: S.Number,
