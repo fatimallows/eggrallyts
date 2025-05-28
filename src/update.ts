@@ -1,7 +1,7 @@
 import { Match, pipe } from "effect"
 import { Cmd } from "cs12242-mvu/src/index"
 import { CanvasMsg } from "cs12242-mvu/src/canvas"
-import { Model, WorldUtils, EggUtils, Eggnemies, Egg, Rectangle, Settings } from "./model"
+import { Model, WorldUtils, EggUtils, Eggnemies, Egg, Rectangle, Settings, EggnemiesUtils } from "./model"
 
 export type Msg = CanvasMsg
 
@@ -26,9 +26,8 @@ export const updateCollision = (model: Model): Model => {
   if (canTakeDamage) {
     for (const enemy of model.eggnemies) {
       if (isinCollision(egg, enemy)) {
-        currentHp -= 1
+        currentHp = currentHp - 1 < 1 ? 0 : currentHp - 1
         firstCollisionTick = model.ticks
-        break
       }
     }
   }
@@ -56,34 +55,89 @@ export const updateEgg = (model: Model) =>
     x: Math.max(0, Math.min(model.egg.x, model.config.worldWidth - model.egg.width)),
   })
 
-const eggnemySpeed = 2
-export const updateEggnemies = (model: Model): Model =>
-  Model.make({
+// const eggnemySpeed = 2
+// export const updateEggnemies = (model: Model): Model =>
+//   Model.make({
+//     ...model,
+//     eggnemies: model.eggnemies.map((e) => {
+//       if (model.isGameOver) return e
+
+//       const dx = model.egg.x - e.x
+//       const dy = model.egg.y - e.y
+//       const distance = Math.sqrt(dx * dx + dy * dy)
+//       const normalizedDx = distance === 0 ? 0 : dx / distance
+//       const normalizedDy = distance === 0 ? 0 : dy / distance
+//       const vx = normalizedDx * eggnemySpeed
+//       const vy = normalizedDy * eggnemySpeed
+
+//       return Eggnemies.make({ 
+//         x: e.x + vx, 
+//         y: e.y + vy, 
+//         width: e.width, 
+//         height: e.height, 
+//         vx: e.vx, 
+//         vy: e.vy, 
+//         hp: e.hp, 
+//         maxHp: e.maxHp, 
+//         id: e.id 
+//       })
+//     }),
+//   })
+const getDistance = (e1: Eggnemies, e2: Eggnemies): number => {
+  const dx = e1.x - e2.x
+  const dy = e1.y - e2.y
+  return Math.sqrt(dx * dx + dy * dy)
+};
+
+export const updateEggnemies = (model: Model): Model => {
+  
+  if (model.isGameOver) {
+    return model
+  }
+
+  const eggnemySpeed = 2
+  const activeEggnemies = model.eggnemies.filter(e => e.hp > 0)
+  let newEggnemies: Eggnemies[] = []
+
+  //attraction to egg
+  for (let i = 0; i < activeEggnemies.length; i++) {
+    let eggnemy = activeEggnemies[i]
+    let vx = 0
+    let vy = 0
+    const dxToEgg = model.egg.x - eggnemy.x;
+    const dyToEgg = model.egg.y - eggnemy.y;
+    const distanceToEgg = Math.sqrt(dxToEgg * dxToEgg + dyToEgg * dyToEgg)
+    const normalizedDxToEgg = distanceToEgg === 0 ? 0 : dxToEgg / distanceToEgg
+    const normalizedDyToEgg = distanceToEgg === 0 ? 0 : dyToEgg / distanceToEgg
+    vx += normalizedDxToEgg * eggnemySpeed * 0.5
+    vy += normalizedDyToEgg * eggnemySpeed * 0.5
+
+    //repulsion to other eggnemies
+    for (let j = 0; j < activeEggnemies.length; j++) {
+      if (i === j) continue
+      const other = activeEggnemies[j]
+      if (isinCollision(eggnemy, other)) {
+        const dx = eggnemy.x - other.x
+        const dy = eggnemy.y - other.y
+        const distance = getDistance(eggnemy, other);
+        const normalizedDx = distance === 0 ? dx : dx / distance
+        const normalizedDy = distance === 0 ? dy : dy / distance
+        vx += normalizedDx 
+        vy += normalizedDy 
+      }
+    }
+
+    const newX = eggnemy.x + vx
+    const newY = eggnemy.y + vy
+
+    newEggnemies.push(Eggnemies.make({ ...eggnemy, x: newX, y: newY }))
+  }
+
+  return Model.make({
     ...model,
-    eggnemies: model.eggnemies.map((e) => {
-      if (model.isGameOver) return e
-
-      const dx = model.egg.x - e.x
-      const dy = model.egg.y - e.y
-      const distance = Math.sqrt(dx * dx + dy * dy)
-      const normalizedDx = distance === 0 ? 0 : dx / distance
-      const normalizedDy = distance === 0 ? 0 : dy / distance
-      const vx = normalizedDx * eggnemySpeed
-      const vy = normalizedDy * eggnemySpeed
-
-      return Eggnemies.make({ 
-        x: e.x + vx, 
-        y: e.y + vy, 
-        width: e.width, 
-        height: e.height, 
-        vx: e.vx, 
-        vy: e.vy, 
-        hp: e.hp, 
-        maxHp: e.maxHp, 
-        id: e.id 
-      })
-    }),
+    eggnemies: newEggnemies,
   })
+}
 
 export const updateGameOver = (model: Model) => {
   const isGameOver = model.egg.hp <= 0 || (model.isBossActive && model.boss.hp <= 0)
@@ -229,32 +283,46 @@ export const spawnBoss = (model: Model, settings: Settings): Model => {
   }
 }
 
-const bossSpeed = 3
+
 
 export const updateBoss = (model: Model): Model => {
-  const boss =
-    model.isBossActive
-      ? Eggnemies.make({
-          ...model.boss,
-          ...(() => {
-            const dx = model.egg.x - model.boss!.x
-            const dy = model.egg.y - model.boss!.y
-            const distance = Math.sqrt(dx * dx + dy * dy)
-            const normalizedDx = distance === 0 ? 0 : dx / distance
-            const normalizedDy = distance === 0 ? 0 : dy / distance
-            const vx = normalizedDx * bossSpeed
-            const vy = normalizedDy * bossSpeed
-            return {
-              x: model.boss!.x + vx,
-              y: model.boss!.y + vy,
-            }
-          })(),
-        })
-      : model.boss
+  if (!model.isBossActive || !model.boss) {
+    return model
+  }
+
+  let boss = Eggnemies.make(model.boss)
+  let vx = 0
+  let vy = 0
+  const bossSpeed = 3
+
+  // attraction to egg
+  const dxToEgg = model.egg.x - boss.x
+  const dyToEgg = model.egg.y - boss.y
+  const distanceToEgg = Math.sqrt(dxToEgg * dxToEgg + dyToEgg * dyToEgg)
+  const normalizedDxToEgg = distanceToEgg === 0 ? 0 : dxToEgg / distanceToEgg
+  const normalizedDyToEgg = distanceToEgg === 0 ? 0 : dyToEgg / distanceToEgg
+  vx += normalizedDxToEgg * bossSpeed * 0.7;
+  vy += normalizedDyToEgg * bossSpeed * 0.7
+
+  // repulsion to eggnemies
+  for (const eggnemy of model.eggnemies.filter(e => e.hp > 0)) {
+    if (isinCollision(boss, eggnemy)) {
+      const dx = boss.x - eggnemy.x
+      const dy = boss.y - eggnemy.y
+      const distance = getDistance(boss, eggnemy)
+      const normalizedDx = distance === 0 ? dx : dx / distance
+      const normalizedDy = distance === 0 ? dy : dy / distance
+      vx += normalizedDx 
+      vy += normalizedDy
+    }
+  }
+
+  const newX = boss.x + vx
+  const newY = boss.y + vy
 
   return Model.make({
     ...model,
-    boss,
+    boss: Eggnemies.make({ ...boss, x: newX, y: newY }),
   })
 }
 
