@@ -24,6 +24,26 @@ export const view = (model: Model) =>
       color: "white", lineWidth: 2
     }),
 
+    ...(model.isBossActive
+  ? [
+      Canvas.SolidRectangle.make({
+        x: model.boss.x,
+        y: model.boss.y,
+        color: "red", 
+        height: model.boss.height,
+        width: model.boss.width,
+      }),
+
+      Canvas.Text.make({
+        x: model.boss.x + model.boss.width / 2,
+        y: model.boss.y + model.boss.height + 15,
+        color: "white",
+        text: `${model.boss.hp}/${model.boss.maxHp}`, 
+        fontSize: 12,
+      }),
+    ]
+  : []),
+
     // Canvas.OutlinedRectangle.make({
     //   x: 0, 
     //   y: 0,
@@ -84,25 +104,7 @@ export const view = (model: Model) =>
       fontSize: 20
     }),
     
-    ...(model.isBossActive
-  ? [
-      Canvas.SolidRectangle.make({
-        x: model.boss.x,
-        y: model.boss.y,
-        color: "red", 
-        height: model.boss.height,
-        width: model.boss.width,
-      }),
-
-      Canvas.Text.make({
-        x: model.boss.x + model.boss.width / 2,
-        y: model.boss.y + model.boss.height + 15,
-        color: "white",
-        text: `${model.boss.hp}/${model.boss.maxHp}`, 
-        fontSize: 12,
-      }),
-    ]
-  : []),
+    
 
     viewGameOver(model),
   ])

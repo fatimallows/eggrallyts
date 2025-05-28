@@ -11,7 +11,7 @@
   "eggnemyInitHP": 5,
   "eggnemyWidth": 20,
   "eggnemyHeight": 20,
-  "eggnemiesToSpawnBoss": 3,
+  "eggnemiesToSpawnBoss": 2,
   "bossWidth": 50,
   "bossHeight": 50,
   "bossInitHP": 100,
