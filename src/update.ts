@@ -53,34 +53,6 @@ export const updateEgg = (model: Model) =>
     x: Math.max(0, Math.min(model.egg.x, model.config.worldWidth - model.egg.width)),
   })
 
-// const eggnemySpeed = 2
-// export const updateEggnemies = (model: Model): Model =>
-//   Model.make({
-//     ...model,
-//     eggnemies: model.eggnemies.map((e) => {
-//       if (model.isGameOver) return e
-
-//       const dx = model.egg.x - e.x
-//       const dy = model.egg.y - e.y
-//       const distance = Math.sqrt(dx * dx + dy * dy)
-//       const normalizedDx = distance === 0 ? 0 : dx / distance
-//       const normalizedDy = distance === 0 ? 0 : dy / distance
-//       const vx = normalizedDx * eggnemySpeed
-//       const vy = normalizedDy * eggnemySpeed
-
-//       return Eggnemies.make({ 
-//         x: e.x + vx, 
-//         y: e.y + vy, 
-//         width: e.width, 
-//         height: e.height, 
-//         vx: e.vx, 
-//         vy: e.vy, 
-//         hp: e.hp, 
-//         maxHp: e.maxHp, 
-//         id: e.id 
-//       })
-//     }),
-//   })
 const getDistance = (e1: Eggnemies, e2: Eggnemies): number => {
   const dx = e1.x - e2.x
   const dy = e1.y - e2.y
@@ -120,8 +92,8 @@ export const updateEggnemies = (model: Model): Model => {
         const distance = getDistance(eggnemy, other);
         const normalizedDx = distance === 0 ? dx : dx / distance
         const normalizedDy = distance === 0 ? dy : dy / distance
-        vx += normalizedDx *1.5
-        vy += normalizedDy *1.5
+        vx += normalizedDx *1.4
+        vy += normalizedDy *1.4
       }
     }
 

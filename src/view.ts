@@ -9,8 +9,8 @@ export const viewGameOver = (model: Model) =>
       y: model.egg.x -10,
       text: model.isBossActive && model.boss.hp <= 0 ? "YOU WIN" : "GAME OVER",
       color: "white",
-      fontSize:15,
-      font: "courier-new",
+      fontSize:10,
+      font: "press-start-2p",
     }) : Canvas.NullElement.make(),
     model.isGameOver ?
     Canvas.Text.make({
@@ -18,8 +18,8 @@ export const viewGameOver = (model: Model) =>
       y: model.egg.y + model.egg.height + 30,
       text: `Restart? [R]`,
       color: "white",
-      fontSize: 15,
-      font: "courier-new",
+      fontSize: 10,
+      font: "press-start-2p",
     }) : Canvas.NullElement.make()
   ]
 
@@ -37,12 +37,10 @@ export const view = (model: Model) =>
 
     ...(model.isBossActive && model.boss.hp > 0
   ? [
-      Canvas.SolidRectangle.make({
+      Canvas.CanvasImage.make({
         x: model.boss.x,
         y: model.boss.y,
-        color: "red", 
-        height: model.boss.height,
-        width: model.boss.width,
+        src: "../resources/boss.png",
       }),
 
       Canvas.Text.make({
@@ -50,17 +48,16 @@ export const view = (model: Model) =>
         y: model.boss.y + model.boss.height + 15,
         color: "white",
         text: `${model.boss.hp}/${model.boss.maxHp}`, 
-        fontSize: 12,
+        fontSize: 8,
+        font: "press-start-2p",
       }),
     ]
   : []),
-
-    Canvas.SolidRectangle.make({
+    
+    Canvas.CanvasImage.make({
       x: egg.x, 
       y: egg.y,
-      color: "white",
-      height: egg.height,
-      width: egg.width
+      src: "../resources/egg.png",
     }),
 
     Canvas.Text.make({
@@ -68,16 +65,15 @@ export const view = (model: Model) =>
       y: egg.y + egg.height + 15,
       color: "white",
       text: `${egg.hp}/${egg.maxHp}`,
-      fontSize: 12
+      fontSize: 8,
+      font: "press-start-2p",
     }),
 
     ...model.eggnemies.map((eggnemies) =>
-      Canvas.SolidRectangle.make({
+      Canvas.CanvasImage.make({
         x: eggnemies.x, 
         y: eggnemies.y,  
-        color: "gray",
-        height: eggnemies.height,
-        width: eggnemies.width
+        src: "../resources/eggnemy.png",
       }),
     ),
 
@@ -85,64 +81,67 @@ export const view = (model: Model) =>
       Canvas.Text.make({
           x: eggnemies.x + eggnemies.width / 2,
           y: eggnemies.y + eggnemies.height + 15,
-          color: "red",
+          color: "gray",
           text: `${eggnemies.hp}/${eggnemies.maxHp}`,
-          fontSize: 12
+          fontSize: 8,
+          font: "press-start-2p",
         })
       ),
 
     Canvas.Text.make({
-      x: world.x + config.worldWidth + 50,
-      y: world.y + 30,
+      x: world.x + config.worldWidth - 30,
+      y: world.y - 20,
       text: `${String(model.timer.minutes)}:${String(model.timer.seconds).padStart(2, '0')}`,
       color: "white",
-      fontSize: 20
+      fontSize: 15,
+      font: "press-start-2p",
     }),
 
     Canvas.Text.make({
-      x: world.x - 40,
-      y: world.y + 30,
+      x: world.x + 10,
+      y: world.y - 20,
       text: `${String(model.defeatedEggnemies)}`,
       color: "white",
-      fontSize: 20
+      fontSize: 15,
+      font: "press-start-2p",
     }),
     
     ...[
       Canvas.Text.make({
         x: world.x + 80, 
-        y: world.y + config.worldHeight - 80, 
+        y: world.y + config.worldHeight + 40, 
         text: `Top 1  ${
           model.leaderboard[0]
             ? `${String(model.leaderboard[0].minutes).padStart(2, '0')}:${String(model.leaderboard[0].seconds).padStart(2, '0')}`
             : "-- : --"
         }`,
         color: "white",
-        fontSize: 14,
-        font: "courier-new",
+        fontSize: 10,
+        font: "press-start-2p",
       }),
       Canvas.Text.make({
         x: world.x + 80,
-        y: world.y + config.worldHeight - 60, 
-        text: `      2  ${
+        y: world.y + config.worldHeight + 60, 
+        text: `    2  ${
           model.leaderboard[1]
             ? `${String(model.leaderboard[1].minutes).padStart(2, '0')}:${String(model.leaderboard[1].seconds).padStart(2, '0')}`
             : "-- : --"
         }`,
         color: "white",
-        fontSize: 14,
-        font: "courier-new",
+        fontSize: 10,
+        font: "press-start-2p",
       }),
       Canvas.Text.make({
         x: world.x + 80,
-        y: world.y + config.worldHeight - 40, 
-        text: `      3  ${
+        y: world.y + config.worldHeight + 80, 
+        text: `    3  ${
           model.leaderboard[2]
             ? `${String(model.leaderboard[2].minutes).padStart(2, '0')}:${String(model.leaderboard[2].seconds).padStart(2, '0')}`
             : "-- : --"
         }`,
         color: "white",
-        fontSize: 14,
-        font: "courier-new",
+        fontSize: 10,
+        font: "press-start-2p",
       }),
     ],
 
