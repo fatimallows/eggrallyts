@@ -3,15 +3,24 @@ import { Model } from "./model"
 import { pipe } from "effect"
 
 export const viewGameOver = (model: Model) =>
-  model.isGameOver || (model.isBossActive && model.boss.hp <= 0) ?
+  [model.isGameOver || (model.isBossActive && model.boss.hp <= 0) ?
     Canvas.Text.make({
       x: model.egg.x + model.egg.width / 2,
       y: model.egg.x -10,
       text: model.isBossActive && model.boss.hp <= 0 ? "YOU WIN" : "GAME OVER",
       color: "white",
       fontSize:15,
-    })
-    : Canvas.NullElement.make()
+    }) : Canvas.NullElement.make(),
+    model.isGameOver ?
+    Canvas.Text.make({
+      x: model.egg.x + model.egg.width / 2,
+      y: model.egg.y + model.egg.height + 30,
+      text: `Restart? [R]`,
+      color: "white",
+      fontSize: 15,
+    }) : Canvas.NullElement.make()
+  ]
+
 
 export const view = (model: Model) =>
   pipe(model, ({ world, config, egg }) => [
@@ -98,5 +107,5 @@ export const view = (model: Model) =>
     
     
 
-    viewGameOver(model),
+    ...viewGameOver(model),
   ])
