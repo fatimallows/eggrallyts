@@ -189,6 +189,8 @@ export const updateBoss = (model: Model): Model => {
 export const makeUpdate = (initModel: Model, settings: Settings) => (msg: Msg, model: Model): Model | { model: Model; cmd: Cmd<Msg> } =>
   Match.value(msg).pipe(
     Match.tag("Canvas.MsgKeyDown", ({ key }) => {
+      console.log("eggnemies spawned:" , model.eggnemiesSpawned)
+
       let x = model.world.x
       let y = model.world.y
       const velocity = -model.config.velocity
