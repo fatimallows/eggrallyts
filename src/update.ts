@@ -93,7 +93,7 @@ export const updateEggnemies = (model: Model): Model => {
     return model
   }
 
-  const eggnemySpeed = 2
+  const eggnemySpeed = 3
   const activeEggnemies = model.eggnemies.filter(e => e.hp > 0)
   let newEggnemies: Eggnemies[] = []
 
@@ -120,8 +120,8 @@ export const updateEggnemies = (model: Model): Model => {
         const distance = getDistance(eggnemy, other);
         const normalizedDx = distance === 0 ? dx : dx / distance
         const normalizedDy = distance === 0 ? dy : dy / distance
-        vx += normalizedDx 
-        vy += normalizedDy 
+        vx += normalizedDx *1.5
+        vy += normalizedDy *1.5
       }
     }
 
@@ -335,7 +335,7 @@ export const updateBoss = (model: Model): Model => {
   })
 }
 
-const formatTime = (time: Timer | undefined): string => {
+export const formatTime = (time: Timer | undefined): string => {
   if (!time) return "--:--";
   const minutes = time.minutes ?? 0
   const seconds = time.seconds ?? 0
@@ -379,7 +379,6 @@ const writeLeaderboard = (
   return updated.slice(0, 3)
 }
 
-// ====== UPDATE FUNCTION ======
 
 type Msg = CanvasMsg
 
