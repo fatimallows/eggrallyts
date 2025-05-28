@@ -138,11 +138,18 @@ export const updateEggnemies = (model: Model): Model => {
 }
 
 export const updateGameOver = (model: Model): Model => {
-  const isGameOver = model.egg.hp <= 0 || (model.isBossActive && model.boss.hp <= 0)
+  const isPlayerWinner = model.isBossActive && model.boss.hp <= 0
+  const isPLayerLoser = model.egg.hp <= 0
+  const isGameOver = isPlayerWinner || isPLayerLoser
+
 
   if (isGameOver && !model.isGameOver) {
-    const updatedLeaderboard = writeLeaderboard([...model.leaderboard], model.timer)
-    LeaderboardUtils.write(updatedLeaderboard)
+    let updatedLeaderboard = model.leaderboard
+
+    if (isPlayerWinner) {
+      let updatedLeaderboard = writeLeaderboard([...model.leaderboard], model.timer)
+      LeaderboardUtils.write(updatedLeaderboard) 
+    }
 
     return Model.make({ 
       ...model, 

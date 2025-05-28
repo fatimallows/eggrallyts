@@ -10,7 +10,7 @@ export const viewGameOver = (model: Model) =>
       text: model.isBossActive && model.boss.hp <= 0 ? "YOU WIN" : "GAME OVER",
       color: "white",
       fontSize:15,
-      
+      font: "courier-new",
     }) : Canvas.NullElement.make(),
     model.isGameOver ?
     Canvas.Text.make({
@@ -19,6 +19,7 @@ export const viewGameOver = (model: Model) =>
       text: `Restart? [R]`,
       color: "white",
       fontSize: 15,
+      font: "courier-new",
     }) : Canvas.NullElement.make()
   ]
 
@@ -117,6 +118,7 @@ export const view = (model: Model) =>
         }`,
         color: "white",
         fontSize: 14,
+        font: "courier-new",
       }),
       Canvas.Text.make({
         x: world.x + 80,
@@ -128,6 +130,7 @@ export const view = (model: Model) =>
         }`,
         color: "white",
         fontSize: 14,
+        font: "courier-new",
       }),
       Canvas.Text.make({
         x: world.x + 80,
@@ -139,6 +142,7 @@ export const view = (model: Model) =>
         }`,
         color: "white",
         fontSize: 14,
+        font: "courier-new",
       }),
     ],
 
