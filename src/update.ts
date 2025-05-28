@@ -1,7 +1,7 @@
 import { Match, pipe } from "effect"
 import { Cmd } from "cs12242-mvu/src/index"
 import { CanvasMsg } from "cs12242-mvu/src/canvas"
-import { Model, WorldUtils, EggUtils, Eggnemies, Egg, Rectangle, Settings, Boss } from "./model"
+import { Model, WorldUtils, EggUtils, Eggnemies, Egg, Rectangle, Settings } from "./model"
 
 export type Msg = CanvasMsg
 
@@ -92,10 +92,29 @@ export const updateTime = (model: Model): Model => {
 export const attack = (model: Model): Model => {
   if (model.isGameOver) return model
   const egg = model.egg
-  let eggnemies = model.eggnemies.filter((e) => isinCollision(egg, e))
-  eggnemies = eggnemies.map((e)=> Eggnemies.make({...e, hp: e.hp - 1 }))
-  eggnemies = [...eggnemies.filter((e) => e.hp > 0), ...model.eggnemies.filter((e) => !isinCollision(egg, e))]
-  return Model.make({ ...model, defeatedEggnemies: model.config.eggnemiesCount - eggnemies.length, eggnemies })
+
+  const collidedEggnemies = model.eggnemies.filter((e) => 
+    isinCollision(egg, e)
+)
+  const updatedCollidedEggnemies = collidedEggnemies.map((e)=> 
+    Eggnemies.make({
+      ...e, 
+      hp: e.hp - 1 })
+)
+  const defeatedEggnemies = updatedCollidedEggnemies.filter((e) => 
+    e.hp <= 0)
+
+  const survivingEggnemies = [
+      ...updatedCollidedEggnemies.filter((e) => 
+        e.hp > 0),
+      ...model.eggnemies.filter((e) => !isinCollision(egg, e))
+    ]
+
+  return Model.make({ 
+    ...model, 
+    defeatedEggnemies: model.defeatedEggnemies + defeatedEggnemies.length, 
+    eggnemies: survivingEggnemies,
+   })
 }
 
 export const spawnEggnemies = (model: Model, settings: Settings) => {  
@@ -131,13 +150,14 @@ export const spawnBoss = (model: Model, settings: Settings): Model => {
   if (model.defeatedEggnemies >= settings.eggnemiesToSpawnBoss && model.boss === null) {
     return Model.make({ 
       ...model, 
-      boss: Boss.make({
+      boss: Eggnemies.make({
         x: model.world.x + model.world.width / 2 - settings.bossWidth / 2,
         y: model.world.y + model.world.height / 2 - settings.bossHeight / 2,
         width: settings.bossWidth,
         height: settings.bossHeight,
         vx: 0,
         vy: 0,
+        id: 0,
         hp: settings.bossInitHP,
         maxHp: settings.bossInitHP,
       }),
@@ -155,8 +175,8 @@ const bossSpeed = 3
 
 export const updateBoss = (model: Model): Model => {
   const boss =
-    model.boss !== null && model.isBossActive
-      ? Boss.make({
+    model.isBossActive
+      ? Eggnemies.make({
           ...model.boss,
           ...(() => {
             const dx = model.egg.x - model.boss!.x
@@ -189,7 +209,10 @@ export const updateBoss = (model: Model): Model => {
 export const makeUpdate = (initModel: Model, settings: Settings) => (msg: Msg, model: Model): Model | { model: Model; cmd: Cmd<Msg> } =>
   Match.value(msg).pipe(
     Match.tag("Canvas.MsgKeyDown", ({ key }) => {
+
       console.log("eggnemies spawned:" , model.eggnemiesSpawned)
+      console.log("eggnemies defeated:" , model.defeatedEggnemies)
+      console.log("eggnemies length:" , model.eggnemies.length)
 
       let x = model.world.x
       let y = model.world.y

@@ -84,7 +84,7 @@ export const view = (model: Model) =>
       fontSize: 20
     }),
     
-    ...(model.isBossActive && model.boss
+    ...(model.isBossActive
   ? [
       Canvas.SolidRectangle.make({
         x: model.boss.x,

@@ -7,7 +7,7 @@
   "eggInitHP": 10,
   "eggWidth": 20,
   "eggHeight": 40,
-  "eggnemiesCount": 10,
+  "eggnemiesCount": 3,
   "eggnemyInitHP": 5,
   "eggnemyWidth": 20,
   "eggnemyHeight": 20,

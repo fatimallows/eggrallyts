@@ -55,7 +55,17 @@ fetch("settings.json")
           )
         ),
         eggnemiesSpawned: Math.max(1, Math.floor(settings.eggnemiesCount * 0.3)),
-        boss: null,
+        boss: Eggnemies.make({
+          x: Math.random() * settings.worldWidth,
+          y: Math.random() * settings.worldHeight,
+          width: settings.eggnemyWidth,
+          height: settings.eggnemyHeight,
+          vx: Math.random() * 2 - 1,
+          vy: Math.random() * 2 - 1,
+          id: 1, 
+          hp: settings.eggnemyInitHP,
+          maxHp: settings.eggnemyInitHP,
+        }),
         isBossActive: false,
         isGameOver: false,
         score: 0,

@@ -60,25 +60,13 @@ export const Eggnemies = S.Struct({
 })
 export type Eggnemies = typeof Eggnemies.Type
 
-export const Boss = S.Struct({
-  x: S.Number,
-  y: S.Number,
-  height: S.Number,
-  width: S.Number,
-  vx: S.Number,
-  vy: S.Number,
-  hp: S.Number, 
-  maxHp: S.Number,
-})
-type Boss = typeof Boss.Type
-
 export const Model = S.Struct({
   world: World,
   config: Config,
   egg: Egg,
   eggnemies: S.Array(Eggnemies),
   eggnemiesSpawned: S.Number,
-  boss: S.Union(Boss, S.Null),
+  boss: Eggnemies,
   isBossActive: S.Boolean,
   isGameOver: S.Boolean,
   score: S.Number,
