@@ -10,6 +10,7 @@ export const viewGameOver = (model: Model) =>
       text: model.isBossActive && model.boss.hp <= 0 ? "YOU WIN" : "GAME OVER",
       color: "white",
       fontSize:15,
+      
     }) : Canvas.NullElement.make(),
     model.isGameOver ?
     Canvas.Text.make({

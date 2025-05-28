@@ -139,6 +139,45 @@ export const attack = (model: Model): Model => {
    })
 }
 
+export const restart = (model: Model, settings: Settings): Model => {
+  return Model.make({
+    world: model.world,
+    config: model.config,
+    egg: Egg.make({
+      x: model.config.worldWidth / 2,
+      y: model.config.worldHeight / 2,
+      width: settings.eggWidth,
+      height: settings.eggHeight,
+      vx: 0,
+      vy: 0,
+      hp: settings.eggInitHP,
+      maxHp: settings.eggInitHP,
+    }),
+    eggnemies: [],
+    eggnemiesSpawned: 0,
+    boss: Eggnemies.make({
+      x: 0, 
+      y: 0, 
+      width: settings.bossWidth, 
+      height: settings.bossHeight, 
+      vx: 0, 
+      vy: 0, 
+      id: 0, 
+      hp: settings.bossInitHP, 
+      maxHp: settings.bossInitHP
+    }),
+    isBossActive: false,
+    isGameOver: false,
+    score: 0,
+    ticks: 0,
+    firstCollisionTick: -30,
+    defeatedEggnemies: 0,
+    timer: {
+      seconds: 0,
+      minutes: 0,
+    },
+  })}
+
 export const spawnEggnemies = (model: Model, settings: Settings) => {  
   const shouldSpawn = model.ticks % 300 === 0 && model.eggnemiesSpawned < settings.eggnemiesCount
   if (!shouldSpawn) return model
@@ -233,7 +272,7 @@ export const makeUpdate = (initModel: Model, settings: Settings) => (msg: Msg, m
 
       if (model.isGameOver) {
         if (key === "r"){
-            return initModel
+            return restart(initModel, settings)
         } return model
       }
         if (key === "w"){
