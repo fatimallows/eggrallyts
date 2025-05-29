@@ -61,7 +61,7 @@ const getDistance = (e1: Eggnemies, e2: Eggnemies): number => {
 
 export const updateEggnemies = (model: Model): Model => {
   
-  if (model.isGameOver) {
+  if (model.isGameOver || model.egg.levelUp) {
     return model
   }
 
@@ -150,7 +150,7 @@ export const updateTime = (model: Model): Model => {
 export const updateEggxperience = (model: Model, settings: Settings): Model => {
   return EggUtils.updateInModel(model, {
     eggxperience: model.defeatedEggnemies,
-    levelUp: Math.floor(model.egg.eggxperience/settings.eggxperienceLimit)-model.egg.level
+    levelUp: model.egg.eggxperience!=0 && model.egg.eggxperience%settings.eggxperienceLimit===0&&model.egg.eggxperience!=model.egg.level*settings.eggxperienceLimit
   })
 }
   
@@ -205,7 +205,7 @@ export const restart = (model: Model, settings: Settings): Model => {
       eggxperience: 0,
       attack: settings.eggInitAttack,
       speed: settings.eggInitSpeed,
-      levelUp: 0,
+      levelUp: false,
       level: 0,
     }),
     eggnemies: [],
@@ -235,7 +235,7 @@ export const restart = (model: Model, settings: Settings): Model => {
   })}
 
 export const spawnEggnemies = (model: Model, settings: Settings) => {  
-  const shouldSpawn = model.ticks % 300 === 0 && model.eggnemiesSpawned < settings.eggnemiesCount
+  const shouldSpawn = model.ticks % 300 === 0 && model.eggnemiesSpawned < settings.eggnemiesCount && !model.egg.levelUp
   if (!shouldSpawn) return model
 
   const onScreen = Math.random() < 0.5
@@ -288,7 +288,7 @@ export const spawnBoss = (model: Model, settings: Settings): Model => {
 
 
 export const updateBoss = (model: Model): Model => {
-  if (!model.isBossActive || !model.boss) {
+  if (!model.isBossActive || !model.boss || model.egg.levelUp) {
     return model
   }
 
@@ -374,8 +374,6 @@ export const makeUpdate = (initModel: Model, settings: Settings) => (msg: Msg, m
   Match.value(msg).pipe(
     Match.tag("Canvas.MsgKeyDown", ({ key }) => {
 
-
-
       let x = model.world.x
       let y = model.world.y
       const velocity = -model.egg.speed
@@ -386,10 +384,11 @@ export const makeUpdate = (initModel: Model, settings: Settings) => (msg: Msg, m
         } return model
       }
       console.log("model egg level up:", model.egg.levelUp)
-        if (model.egg.levelUp>0){
+      if (model.egg.levelUp){
         if (key === "1") return EggUtils.updateInModel(model, {level: model.egg.level+1, hp: model.egg.hp + settings.eggHPIncrement, maxHp: model.egg.maxHp + settings.eggHPIncrement})
         else if (key === "2") return EggUtils.updateInModel(model, {level: model.egg.level+1,attack: model.egg.attack + settings.eggAttackIncrement})
         else if (key === "3") return EggUtils.updateInModel(model, {level: model.egg.level+1, speed: model.egg.speed + settings.eggSpeedIncrement})
+      return model
       }
         if (key === "w"){
             y = Math.min(y - velocity,EggUtils.top(model.egg))
@@ -418,7 +417,7 @@ export const makeUpdate = (initModel: Model, settings: Settings) => (msg: Msg, m
         }
         else if (key === "l") return attack(model)
         else return model
-
+      
       return WorldUtils.updateInModel(model, { x, y })
     }
   ),

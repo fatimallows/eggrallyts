@@ -49,7 +49,7 @@ export const Egg = S.Struct({
   eggxperience: S.Number,
   attack: S.Number,
   speed: S.Number,
-  levelUp: S.Number,
+  levelUp: S.Boolean,
   level: S.Number,
 })
 export type Egg = typeof Egg.Type

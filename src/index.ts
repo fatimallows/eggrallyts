@@ -41,7 +41,7 @@ fetch("settings.json")
           speed: settings.eggInitSpeed,
           hp: settings.eggInitHP,
           maxHp: settings.eggInitHP,
-          levelUp: 0,
+          levelUp: false,
           level: 0,
           
         }),
