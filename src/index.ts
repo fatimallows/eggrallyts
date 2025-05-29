@@ -57,6 +57,8 @@ fetch("settings.json")
               id, 
               hp: settings.eggnemyInitHP,
               maxHp: settings.eggnemyInitHP,
+              attack: settings.eggnemyInitAttack,
+              speed: settings.eggnemyInitSpeed,
             })
           )
         ),
@@ -71,6 +73,8 @@ fetch("settings.json")
           id: 1, 
           hp: settings.eggnemyInitHP,
           maxHp: settings.eggnemyInitHP,
+          speed: settings.bossInitSpeed,
+          attack: settings.bossInitAttack,
         }),
         isBossActive: false,
         isGameOver: false,
@@ -78,6 +82,7 @@ fetch("settings.json")
         ticks: 0,
         firstCollisionTick: -30,
         defeatedEggnemies: 0,
+        defeatedBosses:0,
         timer: {
           seconds: 0,
           minutes: 0,

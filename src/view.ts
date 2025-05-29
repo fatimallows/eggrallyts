@@ -3,7 +3,7 @@ import { Model } from "./model"
 import { pipe } from "effect"
 
 export const viewGameOver = (model: Model) =>
-  [model.isGameOver || (model.isBossActive && model.boss.hp <= 0) ?
+  [model.isGameOver?
     Canvas.Text.make({
       x: model.egg.x + model.egg.width / 2,
       y: model.egg.x -10,
@@ -35,7 +35,7 @@ export const view = (model: Model) =>
       color: "white", lineWidth: 2
     }),
 
-    ...(model.isBossActive && model.boss.hp > 0
+    ...(model.isBossActive 
   ? [
       Canvas.CanvasImage.make({
         x: model.boss.x,

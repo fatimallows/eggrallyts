@@ -63,6 +63,8 @@ export const Eggnemies = S.Struct({
   vy: S.Number,
   id: S.Number,
   hp: S.Number, 
+  speed: S.Number,
+  attack: S.Number,
   maxHp: S.Number,
 })
 export type Eggnemies = typeof Eggnemies.Type
@@ -77,6 +79,7 @@ export const Model = S.Struct({
   eggnemiesSpawned: S.Number,
   boss: Eggnemies,
   isBossActive: S.Boolean,
+  defeatedBosses: S.Number,
   isGameOver: S.Boolean,
   score: S.Number,
   ticks: S.Number,
@@ -100,18 +103,22 @@ export const Settings = S.Struct({
   eggInitAttack: S.Number,
   eggInitSpeed: S.Number,
   eggxperienceLimit: S.Number,
-  eggHPIncrement: S.Number,
-  eggAttackIncrement: S.Number,
-  eggSpeedIncrement: S.Number,
+  hpIncrement: S.Number,
+  attackIncrement: S.Number,
+  speedIncrement: S.Number,
   // eggnemies properties
   eggnemiesCount: S.Number,
   eggnemyWidth: S.Number,
   eggnemyHeight: S.Number,
   eggnemyInitHP: S.Number,
+  eggnemyInitAttack: S.Number,
+  eggnemyInitSpeed: S.Number,
   // boss properties
   bossWidth: S.Number,
   bossHeight: S.Number,
   bossInitHP: S.Number,
+  bossInitAttack: S.Number,
+  bossInitSpeed: S.Number,
   eggnemiesToSpawnBoss: S.Number,
 })
 export type Settings = typeof Settings.Type
