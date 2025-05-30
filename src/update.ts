@@ -14,7 +14,6 @@ const isinCollision = (rect1: Rectangle, rect2: Rectangle) => {
 
 export const updateCollision = (model: Model): Model => {
   const egg = model.egg
-  const boss = model.boss
   let currentHp = model.egg.hp
   let firstCollisionTick = model.firstCollisionTick
   const invincibilityDuration = model.config.eggInvincibilityFrames
@@ -28,9 +27,11 @@ export const updateCollision = (model: Model): Model => {
         firstCollisionTick = model.ticks
       }
     }
-    if (model.isBossActive && model.boss.hp >0 && isinCollision(egg, boss)) {
-      currentHp = currentHp - 3 <1? 0: currentHp -3
-      firstCollisionTick = model.ticks
+    for (const boss of model.bosses ?? []) {
+      if (boss.hp > 0 && isinCollision(egg, boss)) {
+        currentHp = currentHp - 3 < 1 ? 0 : currentHp - 3
+        firstCollisionTick = model.ticks
+      }
     }
   }
 
@@ -158,34 +159,39 @@ export const attack = (model: Model): Model => {
   if (model.egg.levelUp || model.isGameOver) return model
   const egg = model.egg
 
-  const collidedEggnemies = model.eggnemies.filter((e) => 
-    isinCollision(egg, e)
-)
-  const updatedCollidedEggnemies = collidedEggnemies.map((e)=> 
+  const collidedEggnemies = model.eggnemies.filter((e) => isinCollision(egg, e))
+  const updatedCollidedEggnemies = collidedEggnemies.map((e) =>
     Eggnemies.make({
-      ...e, 
-      hp: e.hp - egg.attack})
-)
-  const defeatedEggnemies = updatedCollidedEggnemies.filter((e) => 
-    e.hp <= 0)
-
-  const updatedBoss = isinCollision(egg, model.boss)? Eggnemies.make({
-      ...model.boss,
-      hp: model.boss.hp - egg.attack <0? 0: model.boss.hp -egg.attack,
-    }) : model.boss
-  
+      ...e,
+      hp: e.hp - egg.attack
+    })
+  )
+  const defeatedEggnemies = updatedCollidedEggnemies.filter((e) => e.hp <= 0)
   const survivingEggnemies = [
-      ...updatedCollidedEggnemies.filter((e) => 
-        e.hp > 0),
-      ...model.eggnemies.filter((e) => !isinCollision(egg, e))
-    ]
+    ...updatedCollidedEggnemies.filter((e) => e.hp > 0),
+    ...model.eggnemies.filter((e) => !isinCollision(egg, e))
+  ]
 
-  return Model.make({ 
-    ...model, 
-    defeatedEggnemies: model.defeatedEggnemies + defeatedEggnemies.length, 
+  let defeatedBossesCount = 0
+  const updatedBosses = (model.bosses ?? []).map((boss) => {
+    if (isinCollision(egg, boss)) {
+      const newHp = boss.hp - egg.attack
+      if (newHp <= 0) defeatedBossesCount++
+      return Eggnemies.make({
+        ...boss,
+        hp: newHp < 0 ? 0 : newHp
+      })
+    }
+    return boss
+  })
+
+  return Model.make({
+    ...model,
+    defeatedEggnemies: model.defeatedEggnemies + defeatedEggnemies.length,
+    defeatedBosses: model.defeatedBosses + defeatedBossesCount,
     eggnemies: survivingEggnemies,
-    boss: updatedBoss,
-   })
+    bosses: updatedBosses
+  })
 }
 
 export const restart = (model: Model, settings: Settings): Model => {
@@ -209,20 +215,8 @@ export const restart = (model: Model, settings: Settings): Model => {
     }),
     eggnemies: [],
     eggnemiesSpawned: 0,
-    boss: Eggnemies.make({
-      x: 0, 
-      y: 0, 
-      width: settings.bossWidth, 
-      height: settings.bossHeight, 
-      vx: 0, 
-      vy: 0, 
-      id: 0, 
-      hp: settings.bossInitHP, 
-      maxHp: settings.bossInitHP,
-      speed: settings.bossInitSpeed,
-      attack: settings.bossInitAttack,
-    }),
-    isBossActive: false,
+    bosses: [],
+    lastBossSpawnThreshold: 0,
     isGameOver: false,
     score: 0,
     ticks: 0,
@@ -276,77 +270,87 @@ export const spawnEggnemies = (model: Model, settings: Settings) => {
 }
 
 export const spawnBoss = (model: Model, settings: Settings): Model => {
-  if (model.defeatedEggnemies!=0&&model.defeatedEggnemies % settings.eggnemiesToSpawnBoss === 0 && !model.isBossActive) {
-    return Model.make({ 
-      ...model, 
-      boss: Eggnemies.make({
-        x: model.world.x + model.world.width / 2 - settings.bossWidth / 2,
-        y: model.world.y + model.world.height / 2 - settings.bossHeight / 2,
-        width: settings.bossWidth,
-        height: settings.bossHeight,
-        vx: 0,
-        vy: 0,
-        id: 0,
-        hp: settings.bossInitHP + model.defeatedBosses*settings.hpIncrement,
-        maxHp: settings.bossInitHP + model.defeatedBosses*settings.hpIncrement,
-        attack: settings.bossInitAttack + model.defeatedBosses*settings.attackIncrement,
-        speed: settings.bossInitSpeed + model.defeatedBosses*settings.speedIncrement
-      }),
-      isBossActive: true,
-    })
+  const currentThreshold = Math.floor(model.defeatedEggnemies / settings.eggnemiesToSpawnBoss) * settings.eggnemiesToSpawnBoss;
+  
+  if (
+    model.defeatedEggnemies !== 0 &&
+    model.defeatedEggnemies % settings.eggnemiesToSpawnBoss === 0 &&
+    currentThreshold > model.lastBossSpawnThreshold
+  ) {
+    const newBoss = Eggnemies.make({
+      x: model.world.x + model.world.width / 2 - settings.bossWidth / 2,
+      y: model.world.y + model.world.height / 2 - settings.bossHeight / 2,
+      width: settings.bossWidth,
+      height: settings.bossHeight,
+      vx: 0,
+      vy: 0,
+      id: model.eggnemiesSpawned + model.bosses.length + 1,
+      hp: settings.bossInitHP + model.defeatedBosses * settings.hpIncrement,
+      maxHp: settings.bossInitHP + model.defeatedBosses * settings.hpIncrement,
+      attack: settings.bossInitAttack + model.defeatedBosses * settings.attackIncrement,
+      speed: settings.bossInitSpeed + model.defeatedBosses * settings.speedIncrement,
+    });
+    return Model.make({
+      ...model,
+      bosses: [...model.bosses, newBoss],
+      lastBossSpawnThreshold: currentThreshold,
+    });
   } else {
-    return model
+    return model;
   }
 }
 
-
-
 export const updateBoss = (model: Model, settings: Settings): Model => {
-  if (!model.isBossActive || model.egg.levelUp) {
-    return model
-  }
-  else if (model.isBossActive&&model.boss.hp<=0){
-    return Model.make({...model, isBossActive: false, 
-      defeatedEggnemies: model.defeatedEggnemies+1,
-      defeatedBosses: model.defeatedBosses+1,
-    })
-  }
-  let boss = Eggnemies.make(model.boss)
-  let vx = 0
-  let vy = 0
-  const bossSpeed = model.boss.speed
+  if (model.egg.levelUp) return model
 
-  // attraction to egg
-  const dxToEgg = model.egg.x - boss.x
-  const dyToEgg = model.egg.y - boss.y
-  const distanceToEgg = Math.sqrt(dxToEgg * dxToEgg + dyToEgg * dyToEgg)
-  const normalizedDxToEgg = distanceToEgg === 0 ? 0 : dxToEgg / distanceToEgg
-  const normalizedDyToEgg = distanceToEgg === 0 ? 0 : dyToEgg / distanceToEgg
-  vx += normalizedDxToEgg * bossSpeed * 0.7;
-  vy += normalizedDyToEgg * bossSpeed * 0.7
-
-  // repulsion to eggnemies
-  for (const eggnemy of model.eggnemies.filter(e => e.hp > 0)) {
-    if (isinCollision(boss, eggnemy)) {
-      const dx = boss.x - eggnemy.x
-      const dy = boss.y - eggnemy.y
-      const distance = getDistance(boss, eggnemy)
-      const normalizedDx = distance === 0 ? dx : dx / distance
-      const normalizedDy = distance === 0 ? dy : dy / distance
-      vx += normalizedDx 
-      vy += normalizedDy
+  let defeatedBossesCount = 0
+  const aliveBosses = (model.bosses ?? []).filter(boss => {
+    if (boss.hp <= 0) {
+      defeatedBossesCount++
+      return false
     }
-  }
+    return true
+  })
 
-  const newX = boss.x + vx
-  const newY = boss.y + vy
+  const updatedBosses = aliveBosses.map(boss => {
+    let vx = 0
+    let vy = 0
+    const bossSpeed = boss.speed
+
+    // attraction to egg
+    const dxToEgg = model.egg.x - boss.x
+    const dyToEgg = model.egg.y - boss.y
+    const distanceToEgg = Math.sqrt(dxToEgg * dxToEgg + dyToEgg * dyToEgg)
+    const normalizedDxToEgg = distanceToEgg === 0 ? 0 : dxToEgg / distanceToEgg
+    const normalizedDyToEgg = distanceToEgg === 0 ? 0 : dyToEgg / distanceToEgg
+    vx += normalizedDxToEgg * bossSpeed * 0.7
+    vy += normalizedDyToEgg * bossSpeed * 0.7
+
+    // repulsion to eggnemies
+    for (const eggnemy of model.eggnemies.filter(e => e.hp > 0)) {
+      if (isinCollision(boss, eggnemy)) {
+        const dx = boss.x - eggnemy.x
+        const dy = boss.y - eggnemy.y
+        const distance = getDistance(boss, eggnemy)
+        const normalizedDx = distance === 0 ? dx : dx / distance
+        const normalizedDy = distance === 0 ? dy : dy / distance
+        vx += normalizedDx
+        vy += normalizedDy
+      }
+    }
+
+    const newX = boss.x + vx
+    const newY = boss.y + vy
+
+    return Eggnemies.make({ ...boss, x: newX, y: newY })
+  })
 
   return Model.make({
     ...model,
-    boss: Eggnemies.make({ ...boss, x: newX, y: newY }),
+    bosses: updatedBosses,
+    defeatedBosses: model.defeatedBosses + defeatedBossesCount,
   })
 }
-
 
 export const LeaderboardUtils = {
   read: (): Timer[] => {
@@ -392,7 +396,9 @@ type Msg = CanvasMsg
 export const makeUpdate = (initModel: Model, settings: Settings) => (msg: Msg, model: Model): Model | { model: Model; cmd: Cmd<Msg> } =>
   Match.value(msg).pipe(
     Match.tag("Canvas.MsgKeyDown", ({ key }) => {
+
       console.log("Eggnemies:", model.eggnemies)
+      console.log("Egg HP:", model.egg.hp)
 
       let x = model.world.x
       let y = model.world.y
@@ -410,30 +416,29 @@ export const makeUpdate = (initModel: Model, settings: Settings) => (msg: Msg, m
         else if (key === "3") return EggUtils.updateInModel(model, {level: model.egg.level+1, speed: model.egg.speed + settings.speedIncrement})
       return model
       }
-        if (key === "w"){
-            y = Math.min(y - velocity,EggUtils.top(model.egg))
-            const eggnemies = model.eggnemies.map((e) => Eggnemies.make({...e, y: e.y - velocity}))
-            const boss = Eggnemies.make({...model.boss, y: model.boss.y - velocity })
-            model = y === EggUtils.top(model.egg) ? model : Model.make({ ...model, eggnemies, boss})
+        if (key === "w") {
+            y = Math.min(y - velocity, EggUtils.top(model.egg))
+            const eggnemies = model.eggnemies.map((e) => Eggnemies.make({ ...e, y: e.y - velocity }))
+            const bosses = (model.bosses ?? []).map((b) => Eggnemies.make({ ...b, y: b.y - velocity }))
+            model = y === EggUtils.top(model.egg) ? model : Model.make({ ...model, eggnemies, bosses })
         }
         else if (key === "s") {
             y = Math.max(y + velocity, (model.egg.y + model.egg.height) - model.world.height)
-            const eggnemies = model.eggnemies.map((e) => Eggnemies.make({...e, y: e.y + velocity}))
-            const boss = Eggnemies.make({...model.boss, y: model.boss.y + velocity })
-            model = y == (model.egg.y + model.egg.height) - model.world.height ? model : Model.make({ ...model, eggnemies, boss })
+            const eggnemies = model.eggnemies.map((e) => Eggnemies.make({ ...e, y: e.y + velocity }))
+            const bosses = (model.bosses ?? []).map((b) => Eggnemies.make({ ...b, y: b.y + velocity }))
+            model = y == (model.egg.y + model.egg.height) - model.world.height ? model : Model.make({ ...model, eggnemies, bosses })
         }
-        
         else if (key === "a") {
-            x = Math.min(x-velocity, EggUtils.left(model.egg))
-            const eggnemies = model.eggnemies.map((e) => Eggnemies.make({...e, x: e.x - velocity}))
-            const boss = Eggnemies.make({...model.boss, x: model.boss.x - velocity })
-            model = x === EggUtils.left(model.egg) ? model : Model.make({ ...model, eggnemies, boss })
+            x = Math.min(x - velocity, EggUtils.left(model.egg))
+            const eggnemies = model.eggnemies.map((e) => Eggnemies.make({ ...e, x: e.x - velocity }))
+            const bosses = (model.bosses ?? []).map((b) => Eggnemies.make({ ...b, x: b.x - velocity }))
+            model = x === EggUtils.left(model.egg) ? model : Model.make({ ...model, eggnemies, bosses })
         }
-        else if (key === "d"){
-            x = Math.max(x+velocity, (model.egg.x+model.egg.width)-model.world.width)
-            const eggnemies = model.eggnemies.map((e) => Eggnemies.make({...e, x: e.x + velocity}))
-            const boss = Eggnemies.make({...model.boss, x: model.boss.x + velocity })
-            model = x === (model.egg.x+model.egg.width)-model.world.width ? model : Model.make({ ...model, eggnemies, boss})
+        else if (key === "d") {
+            x = Math.max(x + velocity, (model.egg.x + model.egg.width) - model.world.width)
+            const eggnemies = model.eggnemies.map((e) => Eggnemies.make({ ...e, x: e.x + velocity }))
+            const bosses = (model.bosses ?? []).map((b) => Eggnemies.make({ ...b, x: b.x + velocity }))
+            model = x === (model.egg.x + model.egg.width) - model.world.width ? model : Model.make({ ...model, eggnemies, bosses })
         }
         else if (key === "l") return attack(model)
         else return model

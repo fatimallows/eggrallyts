@@ -7,7 +7,7 @@ export const viewGameOver = (model: Model) =>
     Canvas.Text.make({
       x: model.egg.x + model.egg.width / 2,
       y: model.egg.x -10,
-      text: model.isBossActive && model.boss.hp <= 0 ? "YOU WIN" : "GAME OVER",
+      text: "GAME OVER",
       color: "white",
       fontSize:10,
       font: "press-start-2p",
@@ -35,24 +35,23 @@ export const view = (model: Model) =>
       color: "white", lineWidth: 2
     }),
 
-    ...(model.isBossActive 
-  ? [
+    ...model.bosses.flatMap(boss => [ 
       Canvas.CanvasImage.make({
-        x: model.boss.x,
-        y: model.boss.y,
+        x: boss.x,
+        y: boss.y,
         src: "../resources/boss.png",
       }),
 
       Canvas.Text.make({
-        x: model.boss.x + model.boss.width / 2,
-        y: model.boss.y + model.boss.height + 15,
-        color: "white",
-        text: `${model.boss.hp}/${model.boss.maxHp}`, 
-        fontSize: 8,
-        font: "press-start-2p",
-      }),
+      x: boss.x + boss.width / 2,
+      y: boss.y + boss.height + 15,
+      color: "white",
+      text: `${boss.hp}/${boss.maxHp}`,
+      fontSize: 8,
+      font: "press-start-2p",
+      })
     ]
-  : []),
+    ),
     
     Canvas.CanvasImage.make({
       x: egg.x, 
