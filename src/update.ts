@@ -1,7 +1,7 @@
 import { Effect, Match, pipe } from "effect"
 import { Cmd } from "cs12242-mvu/src/index"
 import { CanvasMsg } from "cs12242-mvu/src/canvas"
-import { Model, WorldUtils, EggUtils, Eggnemies, Egg, Rectangle, Settings, EggnemiesUtils, Timer } from "./model"
+import { Model, WorldUtils, EggUtils, Eggnemies, Egg, Rectangle, Settings, Timer } from "./model"
 
 const isinCollision = (rect1: Rectangle, rect2: Rectangle) => {
   return (
@@ -56,14 +56,19 @@ const getDistance = (e1: Eggnemies, e2: Eggnemies): number => {
   return Math.sqrt(dx * dx + dy * dy)
 };
 
-export const updateEggnemies = (model: Model): Model => {
+export const updateEggnemies = (model: Model, settings: Settings): Model => {
   
   if (model.isGameOver || model.egg.levelUp) {
     return model
   }
 
-  const eggnemySpeed = model.eggnemies[0].speed
   const activeEggnemies = model.eggnemies.filter(e => e.hp > 0)
+  const eggnemySpeed = settings.eggnemyInitSpeed + model.defeatedBosses * settings.speedIncrement
+
+  if (activeEggnemies.length <= 1) {
+    model = spawnEggnemies(model, settings)
+  }
+
   let newEggnemies: Eggnemies[] = []
 
   //attraction to egg
@@ -257,7 +262,7 @@ export const spawnEggnemies = (model: Model, settings: Settings) => {
       id: updatedModel.eggnemies.length + 1,
       hp: settings.eggnemyInitHP + model.defeatedBosses*settings.hpIncrement,
       maxHp: settings.eggnemyInitHP + model.defeatedBosses*settings.hpIncrement,
-      speed: settings.eggnemyInitSpeed + model.defeatedBosses*settings.speedIncrement,
+      speed: settings.eggnemyInitSpeed + model.defeatedBosses * settings.speedIncrement,
       attack: settings.eggnemyInitAttack + model.defeatedBosses*settings.attackIncrement
     })
     updatedModel = Model.make({
@@ -371,9 +376,9 @@ const writeLeaderboard = (
 
   updated.sort((a, b) => {
     if (a.minutes === b.minutes) {
-      return a.seconds - b.seconds
+      return b.seconds - a.seconds
     }
-    return a.minutes - b.minutes
+    return b.minutes - a.minutes
   })
 
   const maxEntries = 3
@@ -387,6 +392,7 @@ type Msg = CanvasMsg
 export const makeUpdate = (initModel: Model, settings: Settings) => (msg: Msg, model: Model): Model | { model: Model; cmd: Cmd<Msg> } =>
   Match.value(msg).pipe(
     Match.tag("Canvas.MsgKeyDown", ({ key }) => {
+      console.log("Eggnemies:", model.eggnemies)
 
       let x = model.world.x
       let y = model.world.y
@@ -441,7 +447,7 @@ export const makeUpdate = (initModel: Model, settings: Settings) => (msg: Msg, m
         : pipe(model, 
           updateEgg, 
           (model) => updateBoss(model, settings),
-          updateEggnemies, 
+          (model) => updateEggnemies(model, settings), 
           updateCollision, 
           (model) => spawnEggnemies(model, settings),
           (model) => spawnBoss(model, settings),
