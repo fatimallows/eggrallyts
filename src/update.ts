@@ -3,6 +3,12 @@ import { Cmd } from "cs12242-mvu/src/index"
 import { CanvasMsg } from "cs12242-mvu/src/canvas"
 import { Model, WorldUtils, EggUtils, Eggnemies, Egg, Rectangle, Settings, Timer } from "./model"
 
+const playSound = (sound: string) => {
+  const audio = new Audio(sound)
+  audio.play()  
+}
+
+
 const isinCollision = (rect1: Rectangle, rect2: Rectangle) => {
   return (
     rect1.x < rect2.x + rect2.width &&
@@ -119,8 +125,9 @@ export const updateGameOver = (model: Model): Model => {
 
   if (isGameOver && !model.isGameOver) {
     let updatedLeaderboard = writeLeaderboard([...model.leaderboard], model.timer)
-    LeaderboardUtils.write(updatedLeaderboard) 
+    LeaderboardUtils.write(updatedLeaderboard)
     
+    playSound("../resources/game-over.mp3")
 
     return Model.make({ 
       ...model, 
@@ -148,6 +155,11 @@ export const updateTime = (model: Model): Model => {
 
 
 export const updateEggxperience = (model: Model, settings: Settings): Model => {
+  const levelUp = model.egg.eggxperience!=0 && model.egg.eggxperience%settings.eggxperienceLimit===0&&model.egg.eggxperience!=model.egg.level*settings.eggxperienceLimit
+  if (levelUp && !model.egg.levelUp) {
+    playSound("../resources/egghancement.mp3")
+  }
+
   return EggUtils.updateInModel(model, {
     eggxperience: model.defeatedEggnemies,
     levelUp: model.egg.eggxperience!=0 && model.egg.eggxperience%settings.eggxperienceLimit===0&&model.egg.eggxperience!=model.egg.level*settings.eggxperienceLimit
@@ -311,6 +323,11 @@ export const updateBoss = (model: Model, settings: Settings): Model => {
     }
     return true
   })
+
+  if (defeatedBossesCount > 0) {
+    playSound("../resources/defeated-boss.mp3")
+    console.log("Played defeated boss sound.")
+  }
 
   const updatedBosses = aliveBosses.map(boss => {
     let vx = 0
