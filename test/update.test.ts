@@ -157,12 +157,9 @@ describe('update.ts', () => {
 
     describe('updateCollision', () => {
         it('should reduce egg HP if colliding with an eggnemy and not invincible', () => {
-            const eggnemies = [
-                mockEggnemy({x: 55, y: 55, width: 15, height: 15, attack: 1,}),
-            ];
             const model = mockModel({
                 egg: mockEgg({ x: 55, y: 55, hp: 25 }),
-                eggnemies,
+                eggnemies: [mockEggnemy({x: 55, y: 55, width: 15, height: 15, attack: 1,})],
                 firstCollisionTick: -30,
                 ticks: 0,
             });
@@ -173,12 +170,9 @@ describe('update.ts', () => {
         });
 
         it('should reduce egg HP by 3 if colliding with a boss and not invincible', () => {
-            const bosses = [
-                mockEggnemy({x: 55, y: 55, width: 37, height: 60, attack: 3,}),
-            ];
             const model = mockModel({
                 egg: mockEgg({ x: 50, y: 50, hp: 25 }),
-                bosses,
+                bosses: [mockEggnemy({x: 55, y: 55, width: 37, height: 60, attack: 3,}),],
                 firstCollisionTick: -60,
                 ticks: 0,
             });
@@ -189,12 +183,9 @@ describe('update.ts', () => {
         });
 
         it('should not reduce egg HP if invincible', () => {
-            const eggnemies = [
-                mockEggnemy({ x: 55, y: 55, width: 15, height: 15, attack: 1 }),
-            ];
             const model = mockModel({
                 egg: mockEgg({ hp: 25 }),
-                eggnemies,
+                eggnemies: [mockEggnemy({ x: 55, y: 55, width: 15, height: 15, attack: 1 })],
                 firstCollisionTick: 0,
                 ticks: 15,
                 config: mockConfig({ eggInvincibilityFrames: 60 }),
@@ -206,12 +197,9 @@ describe('update.ts', () => {
         });
 
         it('should not reduce egg HP if egg is leveling up', () => {
-            const eggnemies = [
-                mockEggnemy({ x: 55, y: 55, width: 15, height: 15, attack: 1 }),
-            ];
             const model = mockModel({
                 egg: mockEgg({ levelUp: true }),
-                eggnemies,
+                eggnemies: [mockEggnemy({ x: 55, y: 55, width: 15, height: 15, attack: 1 })],
                 firstCollisionTick: -60,
                 ticks: 0,
             });
@@ -221,16 +209,10 @@ describe('update.ts', () => {
         });
 
         it('should have egg HP threshold at 0', () => {
-            const eggnemies = [
-                mockEggnemy({ x: 55, y: 55, width: 15, height: 15, attack: 1 }),
-            ];
-            const bosses = [
-                mockEggnemy({ x: 55, y: 55, width: 37, height: 60, attack: 3 }),
-            ];
             const model = mockModel({
                 egg: mockEgg({ x: 55, y: 55, hp: 2 }),
-                eggnemies,
-                bosses,
+                eggnemies: [mockEggnemy({ x: 55, y: 55, width: 15, height: 15, attack: 1 })],
+                bosses: [mockEggnemy({ x: 55, y: 55, width: 37, height: 60, attack: 3 })],
                 firstCollisionTick: -60,
                 ticks: 0,
             });
@@ -242,33 +224,33 @@ describe('update.ts', () => {
 
     describe('updateTicks', () => {
         it('should increment ticks by 1', () => {
-        const model = mockModel({ ticks: 0 });
-        const updatedModel = updateTicks(model);
-        expect(updatedModel.ticks).toBe(1);
+            const model = mockModel({ ticks: 0 });
+            const updatedModel = updateTicks(model);
+            expect(updatedModel.ticks).toBe(1);
         });
     });
 
     describe('updateEgg', () => {
         it('should keep egg within world bounds', () => {
-        const { worldWidth, worldHeight } = mockConfig();
-        const eggWidth = 26;
-        const eggHeight = 30;
+            const { worldWidth, worldHeight } = mockConfig();
+            const eggWidth = 26;
+            const eggHeight = 30;
 
-        let model = mockModel({
-            egg: mockEgg({ x: -100, y: -100, width: eggWidth, height: eggHeight }),
-            world: mockWorld({ width: worldWidth, height: worldHeight })
-        });
-        model = updateEgg(model);
-        expect(model.egg.x).toBe(0);
-        expect(model.egg.y).toBe(0);
+            let model = mockModel({
+                egg: mockEgg({ x: -100, y: -100, width: eggWidth, height: eggHeight }),
+                world: mockWorld({ width: worldWidth, height: worldHeight })
+                });
+            model = updateEgg(model);
+            expect(model.egg.x).toBe(0);
+            expect(model.egg.y).toBe(0);
 
-        model = mockModel({
-            egg: mockEgg({ x: worldWidth, y: worldHeight, width: eggWidth, height: eggHeight }),
-            world: mockWorld({ width: worldWidth, height: worldHeight },)
-        });
-        model = updateEgg(model);
-        expect(model.egg.x).toBe(worldWidth - eggWidth);
-        expect(model.egg.y).toBe(worldHeight - eggHeight);
+            model = mockModel({
+                egg: mockEgg({ x: worldWidth, y: worldHeight, width: eggWidth, height: eggHeight }),
+                world: mockWorld({ width: worldWidth, height: worldHeight },)
+            });
+            model = updateEgg(model);
+            expect(model.egg.x).toBe(worldWidth - eggWidth);
+            expect(model.egg.y).toBe(worldHeight - eggHeight);
         });
     });
 
@@ -349,11 +331,11 @@ describe('update.ts', () => {
             };
         });
 
-
         it('should set isGameOver to true', () => {
             const modelEggDead = mockModel({
                 egg: mockEgg({ hp: 0 }),
             });
+
             const updatedModel = updateGameOver(modelEggDead);
             expect(updatedModel.isGameOver).toBe(true);
         });
@@ -363,6 +345,7 @@ describe('update.ts', () => {
                 isGameOver: true,
                 egg: mockEgg({ hp: 0 }),
             });
+
             const updatedModel = updateGameOver(modelAlreadyOver);
             expect(updatedModel).toEqual(modelAlreadyOver);
         });
@@ -371,6 +354,7 @@ describe('update.ts', () => {
             const modelEggAlive = mockModel({
                 egg: mockEgg({ hp: 5 }),
             });
+
             const updatedModel = updateGameOver(modelEggAlive);
             expect(updatedModel).toEqual(modelEggAlive);
         });
@@ -432,6 +416,7 @@ describe('update.ts', () => {
                 defeatedEggnemies: 2,
                 egg: mockEgg({ level: 0, eggxperience: 1 }), 
             });
+
             model = updateEggxperience(model, mockSettings());
             expect(model.egg.eggxperience).toBe(2);
             expect(model.egg.levelUp).toBe(false);
@@ -440,6 +425,7 @@ describe('update.ts', () => {
                 defeatedEggnemies: 3,
                 egg: mockEgg({ level: 0, eggxperience: 2 }), 
             });
+
             model = updateEggxperience(model, mockSettings());
             expect(model.egg.eggxperience).toBe(3);
             expect(model.egg.levelUp).toBe(true);
@@ -452,6 +438,7 @@ describe('update.ts', () => {
                 egg: mockEgg({ x: 50, y: 50, attack: 5, width: 20, height: 20 }),
                 eggnemies: [mockEggnemy({ x: 55, y: 55, width: 20, height: 20, hp: 10 })],
             });
+
             const updatedModel = attack(model);
             expect(updatedModel.eggnemies[0].hp).toBe(5); 
         });
@@ -462,6 +449,7 @@ describe('update.ts', () => {
                 eggnemies: [mockEggnemy({ x: 55, y: 55, width: 20, height: 20, hp: 5 })],
                 defeatedEggnemies: 0,
             });
+
             const updatedModel = attack(model);
             expect(updatedModel.eggnemies.length).toBe(0);
             expect(updatedModel.defeatedEggnemies).toBe(1);
@@ -472,6 +460,7 @@ describe('update.ts', () => {
                 egg: mockEgg({ x: 50, y: 50, attack: 10, width: 20, height: 20 }),
                 bosses: [mockEggnemy({ x: 55, y: 55, width: 40, height: 40, hp: 100 })],
             });
+
             const updatedModel = attack(model);
             expect(updatedModel.bosses[0].hp).toBe(90); 
         });
@@ -481,6 +470,7 @@ describe('update.ts', () => {
                 egg: mockEgg({ x: 50, y: 50, attack: 10, levelUp: true, width: 20, height: 20 }),
                 eggnemies: [mockEggnemy({ x: 55, y: 55, width: 20, height: 20, hp: 10 })],
             });
+
             const updatedModel = attack(model);
             expect(updatedModel.eggnemies[0].hp).toBe(10); 
         });
@@ -539,6 +529,7 @@ describe('update.ts', () => {
                 defeatedEggnemies: 14,
                 lastBossSpawnThreshold: 0,
             });
+
             let updatedModel = spawnBoss(modelNotYet, mockSettings());
             expect(updatedModel.bosses.length).toBe(0);
 
@@ -546,6 +537,7 @@ describe('update.ts', () => {
                 mockModel({ ...modelNotYet, defeatedEggnemies: 15 }),
                 mockSettings(),
             );
+
             expect(updatedModel.bosses.length).toBe(1);
             expect(updatedModel.lastBossSpawnThreshold).toBe(15);
         });
@@ -555,6 +547,7 @@ describe('update.ts', () => {
                 defeatedEggnemies: 0,
                 lastBossSpawnThreshold: 0,
             });
+
             const updatedModel = spawnBoss(modelZeroDefeated, mockSettings());
             expect(updatedModel.bosses.length).toBe(0);
         });
@@ -564,6 +557,7 @@ describe('update.ts', () => {
                 defeatedEggnemies: 15,
                 lastBossSpawnThreshold: 15,
             });
+
             const updatedModel = spawnBoss(modelAlreadySpawned, mockSettings());
             expect(updatedModel.bosses.length).toBe(0);
             expect(updatedModel.lastBossSpawnThreshold).toBe(15);
@@ -596,6 +590,7 @@ describe('update.ts', () => {
                 egg: mockEgg({ levelUp: true }),
                 bosses: [mockEggnemy({ x: 10, y: 10, vx: 1, vy: 1 })],
             });
+
             const updatedModel = updateBoss(modelLevelingUp, mockSettings());
             expect(updatedModel.bosses[0].x).toBe(10);
             expect(updatedModel.bosses[0].y).toBe(10);
@@ -607,15 +602,17 @@ describe('update.ts', () => {
                 egg: mockEgg({x: 100, y: 100, attack: 1,}),
                 defeatedBosses: 0,
             });
+
             const updatedModel = attack(model);
             expect(updatedModel.defeatedBosses).toBe(1); 
-            });
+        });
 
         it('should move bosses towards the egg (attraction)', () => {
             const modelBossFar = mockModel({
                 egg: mockEgg({ x: 100, y: 100, width: 20, height: 20 }),
                 bosses: [mockEggnemy({ x: 0, y: 0, width: 40, height: 40, hp: 100, speed: 3 })],
             });
+            
             const updatedModel = updateBoss(modelBossFar, mockSettings());
             expect(updatedModel.bosses[0].x).toBeGreaterThan(modelBossFar.bosses[0].x);
             expect(updatedModel.bosses[0].y).toBeGreaterThan(modelBossFar.bosses[0].y);
