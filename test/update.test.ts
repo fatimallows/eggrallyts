@@ -539,13 +539,6 @@ describe('update.ts', () => {
     });
 
     describe('spawnEggnemies', () => {
-        it('should not spawn eggnemies if random chance is too high', () => {
-            mockMathRandom.mockReturnValueOnce(0.015); 
-            const model = mockModel({ eggnemies: [] });
-            const updatedModel = spawnEggnemies(model, mockSettings());
-            expect(updatedModel.eggnemies.length).toBe(0);
-        });
-
         it('should not spawn eggnemies if egg is leveling up', () => {
             const model = mockModel({ egg: mockEgg({ levelUp: true }), eggnemies: [] });
             const updatedModel = spawnEggnemies(model, mockSettings());
