@@ -1,28 +1,28 @@
-import { Array, Schema as S, pipe } from "effect"
+import { Array, Schema as S, pipe } from "effect";
 
 // OBJECTS
 
-export type World = typeof World.Type
+export type World = typeof World.Type;
 export const World = S.Struct({
   x: S.Number,
   y: S.Number,
   width: S.Number,
   height: S.Number,
-})
+});
 
-export type Timer = typeof Timer.Type
+export type Timer = typeof Timer.Type;
 export const Timer = S.Struct({
     seconds: S.Number,
     minutes: S.Number,
-})
+});
 
 export const Rectangle = S.Struct({
   x: S.Number,
   y: S.Number,
   height: S.Number,
   width: S.Number,
-})
-export type Rectangle = typeof Rectangle.Type
+});
+export type Rectangle = typeof Rectangle.Type;
 
 export const Config = S.Struct({
   screenWidth: S.Number,
@@ -32,10 +32,10 @@ export const Config = S.Struct({
   fps: S.Number,
   canvasId: S.String,
   velocity: S.Number,
-  eggInvincibilityFrames: S.Number, 
+  eggInvincibilityFrames: S.Number,
   eggnemiesCount: S.Number,
-})
-export type Config = typeof Config.Type
+});
+export type Config = typeof Config.Type;
 
 export const Egg = S.Struct({
   x: S.Number,
@@ -51,8 +51,8 @@ export const Egg = S.Struct({
   speed: S.Number,
   levelUp: S.Boolean,
   level: S.Number,
-})
-export type Egg = typeof Egg.Type
+});
+export type Egg = typeof Egg.Type;
 
 export const Eggnemies = S.Struct({
   x: S.Number,
@@ -62,12 +62,12 @@ export const Eggnemies = S.Struct({
   vx: S.Number,
   vy: S.Number,
   id: S.Number,
-  hp: S.Number, 
+  hp: S.Number,
   speed: S.Number,
   attack: S.Number,
   maxHp: S.Number,
-})
-export type Eggnemies = typeof Eggnemies.Type
+});
+export type Eggnemies = typeof Eggnemies.Type;
 
 // MODEL & SETTINGS
 
@@ -87,8 +87,8 @@ export const Model = S.Struct({
   defeatedEggnemies: S.Number,
   timer: Timer,
   leaderboard: S.Array(Timer),
-})
-export type Model = typeof Model.Type
+});
+export type Model = typeof Model.Type;
 
 export const Settings = S.Struct({
   fps: S.Number,
@@ -121,14 +121,14 @@ export const Settings = S.Struct({
   bossInitSpeed: S.Number,
   bossSpeed: S.Number,
   eggnemiesToSpawnBoss: S.Number,
-})
-export type Settings = typeof Settings.Type
+});
+export type Settings = typeof Settings.Type;
 
 export const Point = S.Struct({
   x: S.Number,
   y: S.Number,
-})
-export type Point = typeof Point.Type
+});
+export type Point = typeof Point.Type;
 
 // UTILS
 
@@ -147,19 +147,19 @@ export const EggnemiesUtils = {
       eggnemies: pipe(model.eggnemies, Array.map((eggnemy) => Eggnemies.make({...eggnemy, ...updates})))
     }),
   spawn: (config: Config, onScreen: boolean = true, eggnemies: Eggnemies) => {
-    const x = onScreen 
+    const x = onScreen
       ? Math.random() * config.screenWidth
-      : Math.random() * config.worldWidth - config.worldWidth / 2
+      : Math.random() * config.worldWidth - config.worldWidth / 2;
     const y = onScreen
       ? Math.random() * config.screenHeight
-      : Math.random() * config.worldHeight - config.worldHeight / 2
+      : Math.random() * config.worldHeight - config.worldHeight / 2;
     return Eggnemies.make({
       ...eggnemies,
       x,
       y,
-    })
+    });
   }
-}
+};
 
 export const EggUtils = {
   top: (egg: Egg) => egg.y,
@@ -176,21 +176,21 @@ export const EggUtils = {
     });
     return updatedModel;
   },
-  handleDefeat: (model: Model, eggnemiesId: number) => { 
-    const updatedEggnemies = model.eggnemies.filter(e => e.id !== eggnemiesId)
+  handleDefeat: (model: Model, eggnemiesId: number) => {
+    const updatedEggnemies = model.eggnemies.filter(e => e.id !== eggnemiesId);
     return Model.make({
       ...model,
       eggnemies: updatedEggnemies,
       defeatedEggnemies: model.defeatedEggnemies + 1,
-    })
+    });
   }
-}
+};
 
 export const WorldUtils = {
   top: (world: World) => world.y,
   bottom: (world: World) => world.y + world.height,
-  left:  (world: World) => world.x,
-  right:  (world: World) => world.x + world.width,
+  left: (world: World) => world.x,
+  right: (world: World) => world.x + world.width,
   updateInModel: (model: Model, updates: Partial<World>) =>
     Model.make({
       ...model,
@@ -199,7 +199,7 @@ export const WorldUtils = {
         ...updates,
       })
     }),
-}
+};
 
 export const LeaderboardUtils = {
   read: (): Timer[] => {

@@ -1,14 +1,14 @@
-import { startModelCmd } from "cs12242-mvu/src/index"
-import { canvasView } from "cs12242-mvu/src/canvas"
-import { pipe, Array } from "effect"
-import { World, Config, Egg, Eggnemies, Model, Settings, EggUtils, LeaderboardUtils } from "./model"
-import { view } from "./view"
-import { makeUpdate } from "./update"
+import { startModelCmd } from "cs12242-mvu/src/index";
+import { canvasView } from "cs12242-mvu/src/canvas";
+import { pipe, Array } from "effect";
+import { World, Config, Egg, Eggnemies, Model, Settings, EggUtils, LeaderboardUtils } from "./model";
+import { view } from "./view";
+import { makeUpdate } from "./update";
 
 fetch("settings.json")
   .then((response) => response.json())
   .then((data: Settings) => {
-    const settings = data
+    const settings = data;
 
     const initModel = pipe(
       Model.make({
@@ -30,11 +30,11 @@ fetch("settings.json")
           eggnemiesCount: settings.eggnemiesCount,
         }),
         egg: Egg.make({
-          x: 0, 
+          x: 0,
           y: 0,
           width: settings.eggWidth,
           height: settings.eggHeight,
-          vy: 0, 
+          vy: 0,
           vx: 0,
           eggxperience: 0,
           attack: settings.eggInitAttack,
@@ -43,7 +43,7 @@ fetch("settings.json")
           maxHp: settings.eggInitHP,
           levelUp: false,
           level: 0,
-          
+
         }),
         eggnemies: pipe(
           Array.range(1, Math.max(1, Math.floor(settings.eggnemiesCount * 0.3))).map((id) =>
@@ -54,7 +54,7 @@ fetch("settings.json")
               height: settings.eggnemyHeight,
               vx: Math.random() * 2 - 1,
               vy: Math.random() * 2 - 1,
-              id, 
+              id,
               hp: settings.eggnemyInitHP,
               maxHp: settings.eggnemyInitHP,
               attack: settings.eggnemyInitAttack,
@@ -70,7 +70,7 @@ fetch("settings.json")
         ticks: 0,
         firstCollisionTick: -30,
         defeatedEggnemies: 0,
-        defeatedBosses:0,
+        defeatedBosses: 0,
         timer: {
           seconds: 0,
           minutes: 0,
@@ -81,12 +81,12 @@ fetch("settings.json")
         EggUtils.updateInModel(model, {
           x: model.config.worldWidth / 2,
           y: model.config.worldHeight / 2,
-        
-        })   
-    )
-    const root = document.getElementById("app")!
-    const { config } = initModel
-    const update = makeUpdate(initModel, settings)
+
+        })
+    ); // Semicolon added here
+    const root = document.getElementById("app")!;
+    const { config } = initModel;
+    const update = makeUpdate(initModel, settings);
 
     startModelCmd(
       root,
@@ -99,5 +99,5 @@ fetch("settings.json")
         config.canvasId,
         view
       )
-    )
-  })
+    ); 
+  });
