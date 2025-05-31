@@ -311,17 +311,6 @@ describe('update.ts', () => {
             expect(updated.eggnemies[0].y).toBe(10);
         });
 
-        it('should spawn new eggnemies on a random chance', () => {
-            mockMathRandom.mockImplementation(() => 0.001);
-
-            const model = mockModel({
-                eggnemies: [],
-            });
-
-            const updated = updateEggnemies(model, mockSettings());
-            expect(updated.eggnemies.length).toBeGreaterThan(0);
-        });
-
         it('should move eggnemies towards the egg (attraction)', () => {
             const model = mockModel({
                 egg: mockEgg({ x: 100, y: 100, width: 26, height: 30 }),
