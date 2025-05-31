@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach, beforeAll } from 'vitest'
+import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest'
 import {
     updateCollision,
     updateTicks,
@@ -24,7 +24,6 @@ import {
     Config,
     Egg
 } from '../src/model'
-import { CanvasMsg } from 'cs12242-mvu/src/canvas'
 
 // MOCK MODELS
 
@@ -145,12 +144,36 @@ const mockModel = (partial: Partial<Model> = {}): Model =>
   });
 
 
+// Mocking LocalStorage for leaderboard functionality
+
+const localStorageMock = (function () {
+  let store: { [key: string]: string } = {}; 
+  return {
+    getItem: vi.fn((key: string) => store[key] || null), 
+    setItem: vi.fn((key: string, value: string) => {
+      store[key] = value.toString(); 
+    }),
+    removeItem: vi.fn((key: string) => {
+      delete store[key]; 
+    }),
+    clear: vi.fn(() => {
+      store = {};
+    }),
+  };
+})();
+
+Object.defineProperty(globalThis, "localStorage", {
+  value: localStorageMock,
+  writable: true,
+});
+
 // TESTS
 
 describe('update.ts', () => {
   let mockMathRandom: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
+    localStorageMock.clear();
     vi.clearAllMocks();
     mockMathRandom = vi.spyOn(Math, 'random').mockReturnValue(0.5);
   });
@@ -477,7 +500,7 @@ describe('update.ts', () => {
     });
     
     describe('restart', () => {
-        it('should reset model to initial state but preserve leaderboard', () => {
+        it('should reset model to initial state', () => {
             const initialRestartModel = mockModel({
                 isGameOver: true,
                 egg: mockEgg({ hp: 0 }),
@@ -612,7 +635,7 @@ describe('update.ts', () => {
                 egg: mockEgg({ x: 100, y: 100, width: 20, height: 20 }),
                 bosses: [mockEggnemy({ x: 0, y: 0, width: 40, height: 40, hp: 100, speed: 3 })],
             });
-            
+
             const updatedModel = updateBoss(modelBossFar, mockSettings());
             expect(updatedModel.bosses[0].x).toBeGreaterThan(modelBossFar.bosses[0].x);
             expect(updatedModel.bosses[0].y).toBeGreaterThan(modelBossFar.bosses[0].y);
