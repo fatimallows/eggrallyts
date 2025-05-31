@@ -3,11 +3,12 @@ import { Cmd } from "cs12242-mvu/src/index"
 import { CanvasMsg } from "cs12242-mvu/src/canvas"
 import { Model, WorldUtils, EggUtils, Eggnemies, Egg, Rectangle, Settings, Timer } from "./model"
 
+// ====== HELPER FUNCTIONS ======
+
 const playSound = (sound: string) => {
   const audio = new Audio(sound)
   audio.play()  
 }
-
 
 const isinCollision = (rect1: Rectangle, rect2: Rectangle) => {
   return (
@@ -143,27 +144,32 @@ export const updateGameOver = (model: Model): Model => {
 
 export const updateTime = (model: Model): Model => {
   const seconds = Math.floor(model.ticks / 30)
-  const minutes = Math.floor(seconds / 30)
+  const minutes = Math.floor(seconds / 60)
   
   return Model.make({
-        ...model,
-        timer: {
-            seconds: seconds % 60,
-            minutes: minutes,
-        },
-        })
+    ...model,
+    timer: {
+        seconds: seconds % 60,
+        minutes: minutes,
+    },
+  })
 }
 
 
 export const updateEggxperience = (model: Model, settings: Settings): Model => {
-  const levelUp = model.egg.eggxperience!=0 && model.egg.eggxperience%settings.eggxperienceLimit===0&&model.egg.eggxperience!=model.egg.level*settings.eggxperienceLimit
+  const updatedEggxperience = model.defeatedEggnemies
+
+  const levelUp = (updatedEggxperience != 0 && 
+    updatedEggxperience % settings.eggxperienceLimit === 0 &&  
+    updatedEggxperience != model.egg.level * settings.eggxperienceLimit)  
+  
   if (levelUp && !model.egg.levelUp) {
     playSound("../resources/egghancement.mp3")
   }
 
   return EggUtils.updateInModel(model, {
     eggxperience: model.defeatedEggnemies,
-    levelUp: model.egg.eggxperience!=0 && model.egg.eggxperience%settings.eggxperienceLimit===0&&model.egg.eggxperience!=model.egg.level*settings.eggxperienceLimit
+    levelUp: levelUp,
   })
 }
   
@@ -317,7 +323,7 @@ export const updateBoss = (model: Model, settings: Settings): Model => {
   if (model.egg.levelUp) return model
 
   let defeatedBossesCount = 0
-  const aliveBosses = (model.bosses ?? []).filter(boss => {
+  const aliveBosses = (model.bosses).filter(boss => {
     if (boss.hp <= 0) {
       defeatedBossesCount++
       return false

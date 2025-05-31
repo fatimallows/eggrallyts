@@ -119,6 +119,7 @@ export const Settings = S.Struct({
   bossInitHP: S.Number,
   bossInitAttack: S.Number,
   bossInitSpeed: S.Number,
+  bossSpeed: S.Number,
   eggnemiesToSpawnBoss: S.Number,
 })
 export type Settings = typeof Settings.Type
