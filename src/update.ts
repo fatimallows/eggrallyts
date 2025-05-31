@@ -133,7 +133,8 @@ export const updateGameOver = (model: Model): Model => {
       ...model, 
       isGameOver: true,
       leaderboard: updatedLeaderboard,
-      defeatedEggnemies: model.defeatedEggnemies })
+      defeatedEggnemies: model.defeatedEggnemies 
+    })
   }
 
   return model
@@ -199,10 +200,10 @@ export const attack = (model: Model): Model => {
 
   return Model.make({
     ...model,
-    defeatedEggnemies: model.defeatedEggnemies + defeatedEggnemies.length,
-    defeatedBosses: model.defeatedBosses + defeatedBossesCount,
     eggnemies: survivingEggnemies,
-    bosses: updatedBosses
+    bosses: updatedBosses,
+    defeatedBosses: model.defeatedBosses + defeatedBossesCount,
+    defeatedEggnemies: model.defeatedEggnemies + defeatedEggnemies.length + defeatedBossesCount    
   })
 }
 
@@ -326,7 +327,6 @@ export const updateBoss = (model: Model, settings: Settings): Model => {
 
   if (defeatedBossesCount > 0) {
     playSound("../resources/defeated-boss.mp3")
-    console.log("Played defeated boss sound.")
   }
 
   const updatedBosses = aliveBosses.map(boss => {
