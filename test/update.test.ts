@@ -273,19 +273,6 @@ describe('update.ts', () => {
     });
 
     describe('updateEggnemies', () => {
-        const mockMathRandom = vi.fn();
-        let originalMathRandom: () => number;
-
-        beforeEach(() => {
-            originalMathRandom = Math.random;
-            Math.random = mockMathRandom;
-        });
-
-        afterEach(() => {
-            Math.random = originalMathRandom;
-            vi.restoreAllMocks();
-        });
-
         it('should not update eggnemies if game is over', () => {
             const model = mockModel({ 
                 isGameOver: true, 
